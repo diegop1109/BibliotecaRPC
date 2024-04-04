@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "gestorbiblioteca.h": "c",
+        "stdlib.h": "c"
+    }
+}
