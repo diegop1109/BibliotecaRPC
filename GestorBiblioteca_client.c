@@ -104,54 +104,135 @@ void gestorbiblioteca_1(char *host)
 				idAdm = *result_1; // guardamos el id del admin
 				printf("		INICIO DE SESION ADMIN...\n");
 				Pause;
-				cual = menuAdministracion();
-				// llamado a las opciones del menu admin
-				switch (cual)
+				do
 				{
-				case 0: // logoff
-					result_2 = desconexion_1(&idAdm, clnt);
-					if (result_2 == (bool_t *)NULL)
+					cual = menuAdministracion();
+					// llamado a las opciones del menu admin
+					switch (cual)
 					{
-						clnt_perror(clnt, "call failed");
-					}
-					else
-					{
-						switch (*result_2)
+					case 0: // logoff
+						result_2 = desconexion_1(&idAdm, clnt);
+						if (result_2 == (bool_t *)NULL)
 						{
-						case FALSE:
-							printf("FALSE ERROR: IDAdmin no coincide con los parametros\n");
-							break;
-
-						case TRUE:
-							printf("cerrando sesion de administrador...\n");
-							break;
+							clnt_perror(clnt, "call failed");
 						}
-					}
+						else
+						{
+							switch (*result_2)
+							{
+							case FALSE:
+								printf("FALSE ERROR: IDAdmin no coincide con los parametros\n");
+								break;
 
-					break;
-				case 1: // cargar datos
-				{
-					printf("Introduce el nombre del fichero de datos:\n");
-					scanf("%s", nFichero);
-					strcpy(cargardatos_1_arg.Datos, nFichero);
-					cargardatos_1_arg.Ida = *result_1;
-					result_3 = cargardatos_1(&cargardatos_1_arg, clnt);
-					if (*result_3 == -1)
+							case TRUE:
+								printf("cerrando sesion de administrador...\n");
+								break;
+							}
+						}
+
+						break;
+					case 1: // cargar datos
 					{
-						printf("ERROR: FALLO EN AUTENTICACION DE USUARIO ADMIN\n");
+						printf("Introduce el nombre del fichero de datos:\n");
+						scanf("%s", nFichero);
+						strcpy(cargardatos_1_arg.Datos, nFichero);
+						cargardatos_1_arg.Ida = *result_1;
+						result_3 = cargardatos_1(&cargardatos_1_arg, clnt);
+						if (*result_3 == -1)
+						{
+							printf("ERROR: FALLO EN AUTENTICACION DE USUARIO ADMIN\n");
+						}
+						else if (*result_3 == 0)
+						{
+							printf("ERROR: NO HAY LIBROS EN EL FICHERO\n");
+						}
+						else
+						{
+							printf("SE LAN SUBIDO LOS LIBROS EXITOSAMENTE\n");
+						}
+						Pause;
+						break;
 					}
-					else if(*result_3 == 0)
+					case 2: // opcion guardar datos
 					{
-						printf("ERROR: NO HAY LIBROS EN EL FICHERO\n");
+						printf("Guardar datos...\n");
+						Pause;
+						break;
 					}
-					else
+					case 3: // nuevo libro
 					{
-						printf("SE LAN SUBIDO LOS LIBROS EXITOSAMENTE");
+
+						// variables para los datos del libro
+						Cadena nuevoIsbn = "";
+						Cadena nuevoAutor = "";
+						Cadena nuevoTitulo = "";
+						int nuevoAnho = 0;
+						Cadena nuevoPais = "";
+						Cadena nuevoIdioma = "";
+
+						// idadmin
+						nuevolibro_1_arg.Ida = idAdm;
+						// escaner
+						printf("introducir datos de nuevo libro....\n");
+						printf("introducir ISBN: \n");
+						scanf("%s", nuevoIsbn);
+						printf("introducir el autor: \n");
+						scanf("%s", nuevoAutor);
+						printf("introducir titulo: \n");
+						scanf("%s", nuevoTitulo);
+						printf("introducir anho: \n");
+						scanf("%d", &nuevoAnho);
+						printf("introducir pais: \n");
+						scanf("%s", nuevoPais);
+						printf("introducir idioma: \n");
+						scanf("%s", nuevoIdioma);
+
+						// settear datos en el nuevo libro
+						strcpy(nuevolibro_1_arg.Libro.Isbn, nuevoIsbn);
+						strcpy(nuevolibro_1_arg.Libro.Autor, nuevoAutor);
+						strcpy(nuevolibro_1_arg.Libro.Titulo, nuevoTitulo);
+						nuevolibro_1_arg.Libro.Anio = nuevoAnho;
+						strcpy(nuevolibro_1_arg.Libro.Pais, nuevoPais);
+						strcpy(nuevolibro_1_arg.Libro.Idioma, nuevoIdioma);
+						nuevolibro_1_arg.Libro.NoLibros = 0;
+						nuevolibro_1_arg.Libro.NoListaEspera = 0;
+						nuevolibro_1_arg.Libro.NoPrestados = 0;
+						// probando imprimir por terminal
+						printf("datos del nuevo libro-> Isbn:%s Autor:%s Titulo:%s Anho:%d Pais:%s Idioma:%s\n",
+							   nuevolibro_1_arg.Libro.Isbn, nuevolibro_1_arg.Libro.Autor, nuevolibro_1_arg.Libro.Titulo,
+							   nuevolibro_1_arg.Libro.Anio, nuevolibro_1_arg.Libro.Pais, nuevolibro_1_arg.Libro.Idioma);
+
+						// cargamos los datos al servidor
+						result_3 = nuevolibro_1(&nuevolibro_1_arg, clnt);
+						if (result_3 == (int *)NULL)
+						{
+							clnt_perror(clnt, "call failed");
+						}
+						Pause;
+						break;
 					}
-					
-					break;
-				}
-				}
+					case 4: // comprar libros
+					{
+						printf("datos de libros a comprar...\n");
+					}
+					case 8: // listar libros
+					{
+						printf("Mostrando listado de libros...\n");
+						// nlibros_1_arg = idAdm;
+						// result_4 = nlibros_1(&nlibros_1,clnt);
+						if (result_4 == (int *)NULL)
+						{
+							clnt_perror(clnt, "call failed");
+						}
+						else
+						{
+							// MostrarLibro(result_4,);
+						}
+						Pause;
+						break;
+					}
+					}
+				} while (TRUE);
 			}
 		}
 		break;

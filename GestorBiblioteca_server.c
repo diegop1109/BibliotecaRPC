@@ -55,30 +55,44 @@ desconexion_1_svc(int *argp, struct svc_req *rqstp)
 
 int *cargardatos_1_svc(TConsulta *argp, struct svc_req *rqstp)
 {
+	printf("se estan cargando los datos de biblioteca\n");
 	static int result = 1;
-	strcpy(NomFichero, argp->Datos);
+	strcpy(NomFichero, argp->Datos); //(*argp).Datos
 	FILE *fDatos = NULL;
-	TLibro repo = {};
 
 	if (argp->Ida != IdAdmin)
 	{
 		result = -1;
 	} else 
 	{
-		fDatos = fopen(NomFichero, "rb");
+		fDatos = fopen("Biblioteca.cdat", "rb");
 		if (fDatos ==NULL)
 		{
 			result = 0;
 		} else 
 		{
 			fread(&NumLibros,sizeof(NumLibros),1,fDatos);
+			TLibro repo[NumLibros];
+			
 			Biblioteca = (TLibro *)malloc(sizeof(TLibro) * NumLibros);
+			printf("cuantos libros hay: %d\n",NumLibros);
 			if (Biblioteca == NULL)
 			{
-				printf("No hay libros para leer en el fichero");
+				printf("No hay libros para leer en el fichero\n");
 			} else 
 			{
-				fread(Biblioteca, sizeof(repo) * NumLibros, NumLibros, fDatos);
+				printf("se han cargado los datos de biblioteca\n");
+				fread(Biblioteca, sizeof(TLibro) * NumLibros, NumLibros, fDatos);
+				for (size_t i = 0; i < NumLibros; i++)
+				{
+					
+					repo[i] = Biblioteca[i];
+					printf("imprimir> \n");
+					printf("%d %s %s ",repo[i].Anio,repo[i].Autor,repo[i].Idioma);
+					printf("%s %d %d %s %s\n",repo[i].Isbn,repo[i].NoLibros,repo[i].NoPrestados,repo[i].Pais,repo[i].Titulo);
+					/* code */
+				}
+				
 			}
 			fclose(fDatos);
 			
@@ -105,11 +119,11 @@ guardardatos_1_svc(int *argp, struct svc_req *rqstp)
 int *nuevolibro_1_svc(TNuevo *argp, struct svc_req *rqstp)
 {
 	static int result;
+	printf("datos del nuevo libro-> Isbn:%s Autor:%s Titulo:%s Anho:%d Pais:%s Idioma:%s\n",
+							   *argp->Libro.Isbn, *argp->Libro.Autor, *argp->Libro.Titulo,
+							   (int *)argp->Libro.Anio, *argp->Libro.Pais, *argp->Libro.Idioma);
 
-	/*
-	 * insert server code here
-	 */
-
+	
 	return &result;
 }
 
