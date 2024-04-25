@@ -75,7 +75,7 @@ int *cargardatos_1_svc(TConsulta *argp, struct svc_req *rqstp)
 		else
 		{
 			fread(&NumLibros, sizeof(NumLibros), 1, fDatos);
-			TLibro repo[NumLibros];
+			//TLibro repo;//[NumLibros];
 
 			Biblioteca = (TLibro *)malloc(sizeof(TLibro) * NumLibros);
 			printf("cuantos libros hay: %d\n", NumLibros);
@@ -87,14 +87,16 @@ int *cargardatos_1_svc(TConsulta *argp, struct svc_req *rqstp)
 			{
 				printf("se han cargado los datos de biblioteca\n");
 				fread(Biblioteca, sizeof(TLibro) * NumLibros, NumLibros, fDatos);
+				#define repo Biblioteca[i]
 				for (size_t i = 0; i < NumLibros; i++)
 				{
 
-					repo[i] = Biblioteca[i];
+				//	repo = Biblioteca[i];
 					printf("imprimir> %ld\n", i);
-					printf("%d %s %s ", repo[i].Anio, repo[i].Autor, repo[i].Idioma);
-					printf("%s %d %d %s %s\n", repo[i].Isbn, repo[i].NoLibros, repo[i].NoPrestados, repo[i].Pais, repo[i].Titulo);
+					printf("%d %s %s ", repo.Anio, repo.Autor, repo.Idioma);
+					printf("%s %d %d %s %s\n", repo.Isbn, repo.NoLibros, repo.NoPrestados, repo.Pais, repo.Titulo);
 				}
+			    #undef repo	
 			}
 			fclose(fDatos);
 		}
@@ -131,9 +133,9 @@ int *nuevolibro_1_svc(TNuevo *argp, struct svc_req *rqstp)
 			   argp->Libro.Anio, argp->Libro.Pais, argp->Libro.Idioma);
 		NumLibros = NumLibros + 1;
 		Biblioteca = (TLibro *)realloc(Biblioteca, sizeof(TLibro) * NumLibros);
-		Biblioteca[NumLibros] = argp->Libro;
-		int i = NumLibros;
-		printf("imprimir> %d\n", i-1);
+		Biblioteca[NumLibros-1] = argp->Libro; //error
+		int i = NumLibros-1;
+		printf("imprimir> %d\n", i);
 		printf("%d %s %s ", Biblioteca[i].Anio, Biblioteca[i].Autor, Biblioteca[i].Idioma);
 		printf("%s %d %d %s %s\n", Biblioteca[i].Isbn, Biblioteca[i].NoLibros, Biblioteca[i].NoPrestados, Biblioteca[i].Pais, Biblioteca[i].Titulo);
 	}

@@ -264,7 +264,29 @@ void gestorbiblioteca_1(char *host)
 					}
 					case 4: // comprar libros
 					{
-						printf("datos de libros a comprar...\n");
+						Cadena nIsbn = "";
+						printf("Indique el ISBN del libro a comprar...\n");
+						scanf("%s", nIsbn);
+						comprar_1_arg.Ida = idAdm;
+						strcpy(comprar_1_arg.Isbn, nIsbn);
+						result_6 = comprar_1(&comprar_1_arg, clnt);
+						// llamar a descargar
+						descargar_1_arg.Ida = idAdm;
+						descargar_1_arg.Pos = 0;
+						result_11 = descargar_1(&descargar_1_arg, clnt);
+						MostrarLibro(result_11, 0, TRUE);
+					}
+					case 5: // retirar libro
+					{
+						printf("Indique el ISBN del libro que desea retirar de la biblioteca...\n");
+					}
+					case 6: // ordenar libros
+					{
+						printf("Indique el criterio para ordenar los libros de la biblioteca...\n");
+					}
+					case 7: // buscar libros
+					{
+						printf("INdique un criterio para buscar libros en la biblioteca....\n");
 					}
 					case 8: // listar libros
 					{
@@ -284,11 +306,11 @@ void gestorbiblioteca_1(char *host)
 							descargar_1_arg.Ida = idAdm;
 							descargar_1_arg.Pos = 0;
 							result_11 = descargar_1(&descargar_1_arg, clnt);
-							MostrarLibro(result_11,0,TRUE);	
+							MostrarLibro(result_11, 0, TRUE);
 							do
 							{
 								result_11 = descargar_1(&descargar_1_arg, clnt);
-								MostrarLibro(result_11,descargar_1_arg.Pos,FALSE);
+								MostrarLibro(result_11, descargar_1_arg.Pos, FALSE);
 								descargar_1_arg.Pos = descargar_1_arg.Pos + 1;
 							} while (descargar_1_arg.Pos < *result_9);
 						}
@@ -371,7 +393,6 @@ void gestorbiblioteca_1(char *host)
 	clnt_destroy(clnt);
 #endif /* DEBUG */
 }
-
 
 int menuPrincipal()
 {
