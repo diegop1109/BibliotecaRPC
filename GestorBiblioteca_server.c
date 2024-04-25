@@ -25,8 +25,8 @@ int *conexion_1_svc(int *argp, struct svc_req *rqstp)
 	{
 		result = -2;
 	}
-	else if (IdAdmin != -1)	//no hay sesiones de administrador iniciadas en este momento
-	{ 
+	else if (IdAdmin != -1) // no hay sesiones de administrador iniciadas en este momento
+	{
 		result = -1;
 	}
 	else
@@ -44,12 +44,13 @@ desconexion_1_svc(int *argp, struct svc_req *rqstp)
 	if (*argp != IdAdmin)
 	{
 		result = FALSE;
-	} else
+	}
+	else
 	{
 		result = TRUE;
-		IdAdmin = -1;	//resetear la variable ahora que no hay ningun admin conectado
+		IdAdmin = -1; // resetear la variable ahora que no hay ningun admin conectado
 	}
-	
+
 	return &result;
 }
 
@@ -63,43 +64,41 @@ int *cargardatos_1_svc(TConsulta *argp, struct svc_req *rqstp)
 	if (argp->Ida != IdAdmin)
 	{
 		result = -1;
-	} else 
+	}
+	else
 	{
 		fDatos = fopen("Biblioteca.cdat", "rb");
-		if (fDatos ==NULL)
+		if (fDatos == NULL)
 		{
 			result = 0;
-		} else 
+		}
+		else
 		{
-			fread(&NumLibros,sizeof(NumLibros),1,fDatos);
+			fread(&NumLibros, sizeof(NumLibros), 1, fDatos);
 			TLibro repo[NumLibros];
-			
+
 			Biblioteca = (TLibro *)malloc(sizeof(TLibro) * NumLibros);
-			printf("cuantos libros hay: %d\n",NumLibros);
+			printf("cuantos libros hay: %d\n", NumLibros);
 			if (Biblioteca == NULL)
 			{
 				printf("No hay libros para leer en el fichero\n");
-			} else 
+			}
+			else
 			{
 				printf("se han cargado los datos de biblioteca\n");
 				fread(Biblioteca, sizeof(TLibro) * NumLibros, NumLibros, fDatos);
 				for (size_t i = 0; i < NumLibros; i++)
 				{
-					
+
 					repo[i] = Biblioteca[i];
-					printf("imprimir> \n");
-					printf("%d %s %s ",repo[i].Anio,repo[i].Autor,repo[i].Idioma);
-					printf("%s %d %d %s %s\n",repo[i].Isbn,repo[i].NoLibros,repo[i].NoPrestados,repo[i].Pais,repo[i].Titulo);
-					/* code */
+					printf("imprimir> %ld\n", i);
+					printf("%d %s %s ", repo[i].Anio, repo[i].Autor, repo[i].Idioma);
+					printf("%s %d %d %s %s\n", repo[i].Isbn, repo[i].NoLibros, repo[i].NoPrestados, repo[i].Pais, repo[i].Titulo);
 				}
-				
 			}
 			fclose(fDatos);
-			
 		}
-		
 	}
-	
 
 	return &result;
 }
@@ -119,11 +118,26 @@ guardardatos_1_svc(int *argp, struct svc_req *rqstp)
 int *nuevolibro_1_svc(TNuevo *argp, struct svc_req *rqstp)
 {
 	static int result;
-	printf("datos del nuevo libro-> Isbn:%s Autor:%s Titulo:%s Anho:%d Pais:%s Idioma:%s\n",
-							   *argp->Libro.Isbn, *argp->Libro.Autor, *argp->Libro.Titulo,
-							   (int *)argp->Libro.Anio, *argp->Libro.Pais, *argp->Libro.Idioma);
 
-	
+	if (argp->Ida != IdAdmin)
+	{
+		result = -1;
+	}
+	else
+	{
+		result = 0;
+		printf("datos del nuevo libro-> Isbn:%s Autor:%s Titulo:%s Anho:%d Pais:%s Idioma:%s\n",
+			   argp->Libro.Isbn, argp->Libro.Autor, argp->Libro.Titulo,
+			   argp->Libro.Anio, argp->Libro.Pais, argp->Libro.Idioma);
+		NumLibros = NumLibros + 1;
+		Biblioteca = (TLibro *)realloc(Biblioteca, sizeof(TLibro) * NumLibros);
+		Biblioteca[NumLibros] = argp->Libro;
+		int i = NumLibros;
+		printf("imprimir> %d\n", i-1);
+		printf("%d %s %s ", Biblioteca[i].Anio, Biblioteca[i].Autor, Biblioteca[i].Idioma);
+		printf("%s %d %d %s %s\n", Biblioteca[i].Isbn, Biblioteca[i].NoLibros, Biblioteca[i].NoPrestados, Biblioteca[i].Pais, Biblioteca[i].Titulo);
+	}
+
 	return &result;
 }
 

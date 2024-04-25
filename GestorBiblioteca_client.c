@@ -206,7 +206,13 @@ void gestorbiblioteca_1(char *host)
 						result_3 = nuevolibro_1(&nuevolibro_1_arg, clnt);
 						if (result_3 == (int *)NULL)
 						{
-							clnt_perror(clnt, "call failed");
+							clnt_perror(clnt, "call failed\n");
+						} else if(*result_3 == -1)
+						{
+							printf("id del administrador no coincide\n");
+						} else if(*result_3 == 0)
+						{
+							printf("se cargo el nuevo libro exitosamente\n");
 						}
 						Pause;
 						break;
@@ -385,7 +391,6 @@ int menuAdministracion()
 		printf("\t3.- Nuevo libro\n");
 		printf("\t4.- Comprar libros\n");
 		printf("\t5.- Retirar libros\n");
-		printf("\t6.- Ordenar libros\n");
 		printf("\t6.- Ordenar libros\n");
 		printf("\t7.- Buscar libros\n");
 		printf("\t8.- Listar libros\n");
