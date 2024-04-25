@@ -179,9 +179,14 @@ int *nlibros_1_svc(int *argp, struct svc_req *rqstp)
 {
 	static int result;
 
-	/*
-	 * insert server code here
-	 */
+	if (*argp != IdAdmin)
+	{
+		result = -1;
+	} else 
+	{
+		result = NumLibros;
+	}
+	
 
 	return &result;
 }
@@ -202,9 +207,14 @@ descargar_1_svc(TPosicion *argp, struct svc_req *rqstp)
 {
 	static TLibro result;
 
-	/*
-	 * insert server code here
-	 */
+	if (argp->Ida != IdAdmin)
+	{
+		return NULL;
+	} else 
+	{
+		result = Biblioteca[argp->Pos];	
+	}
+	
 
 	return &result;
 }

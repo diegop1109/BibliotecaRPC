@@ -24,6 +24,49 @@
 int menuPrincipal();
 int menuAdministracion();
 
+void Formatea(char *Salida, const char *p, int ancho, char Caracter)
+{
+	Cadena vacia;
+	int len = ancho - strlen(p);
+	int l = 0, c = 0;
+
+	while (p[l] != '\0')
+	{
+		if ((unsigned char)p[l] > 128)
+			c++;
+		l++;
+	}
+	len += c / 2;
+
+	if (len < 0)
+		len = 0;
+	for (int i = 0; i < len; i++)
+		vacia[i] = Caracter;
+	vacia[len] = '\0';
+
+	sprintf(Salida, "%s%s", p, vacia);
+}
+
+void MostrarLibro(TLibro *L, int Pos, bool_t Cabecera)
+{
+	Cadena T, A, B, PI;
+	if (Cabecera == TRUE)
+	{
+		printf("%-*s%-*s%-*s%*s%*s%*s\n", 5, "POS", 58, "TITULO", 18, "ISBN", 4, "DIS", 4, "PRE", 4, "RES");
+		printf("     %-*s%-*s%-*s\n", 30, "AUTOR", 28, "PAIS (IDIOMA)", 12, "AÑO");
+		Formatea(B, "*", 93, '*');
+		printf("%s\n", B);
+	}
+	Formatea(T, L->Titulo, 58, ' ');
+	Formatea(A, L->Autor, 30, ' ');
+	strcpy(B, L->Pais);
+	strcat(B, " (");
+	strcat(B, L->Idioma);
+	strcat(B, ")");
+	Formatea(PI, B, 28, ' ');
+	printf("%-5d%s%-*s%*d%*d%*d\n", Pos + 1, T, 18, L->Isbn, 4, L->NoLibros, 4, L->NoPrestados, 4, L->NoListaEspera);
+	printf("     %s%s%-*d\n", A, PI, 12, L->Anio);
+}
 void gestorbiblioteca_1(char *host)
 {
 	CLIENT *clnt;
@@ -207,10 +250,12 @@ void gestorbiblioteca_1(char *host)
 						if (result_3 == (int *)NULL)
 						{
 							clnt_perror(clnt, "call failed\n");
-						} else if(*result_3 == -1)
+						}
+						else if (*result_3 == -1)
 						{
 							printf("id del administrador no coincide\n");
-						} else if(*result_3 == 0)
+						}
+						else if (*result_3 == 0)
 						{
 							printf("se cargo el nuevo libro exitosamente\n");
 						}
@@ -224,15 +269,28 @@ void gestorbiblioteca_1(char *host)
 					case 8: // listar libros
 					{
 						printf("Mostrando listado de libros...\n");
-						// nlibros_1_arg = idAdm;
-						// result_4 = nlibros_1(&nlibros_1,clnt);
-						if (result_4 == (int *)NULL)
+						nlibros_1_arg = idAdm;
+						result_9 = nlibros_1(&nlibros_1_arg, clnt);
+						if (result_9 == (int *)NULL)
 						{
 							clnt_perror(clnt, "call failed");
 						}
+						else if (*result_9 == -1)
+						{
+							printf("no se han encontrado libros para listar\n");
+						}
 						else
 						{
-							// MostrarLibro(result_4,);
+							descargar_1_arg.Ida = idAdm;
+							descargar_1_arg.Pos = 0;
+							result_11 = descargar_1(&descargar_1_arg, clnt);
+							MostrarLibro(result_11,0,TRUE);	
+							do
+							{
+								result_11 = descargar_1(&descargar_1_arg, clnt);
+								MostrarLibro(result_11,descargar_1_arg.Pos,FALSE);
+								descargar_1_arg.Pos = descargar_1_arg.Pos + 1;
+							} while (descargar_1_arg.Pos < *result_9);
 						}
 						Pause;
 						break;
@@ -314,49 +372,6 @@ void gestorbiblioteca_1(char *host)
 #endif /* DEBUG */
 }
 
-void Formatea(char *Salida, const char *p, int ancho, char Caracter)
-{
-	Cadena vacia;
-	int len = ancho - strlen(p);
-	int l = 0, c = 0;
-
-	while (p[l] != '\0')
-	{
-		if ((unsigned char)p[l] > 128)
-			c++;
-		l++;
-	}
-	len += c / 2;
-
-	if (len < 0)
-		len = 0;
-	for (int i = 0; i < len; i++)
-		vacia[i] = Caracter;
-	vacia[len] = '\0';
-
-	sprintf(Salida, "%s%s", p, vacia);
-}
-
-void MostrarLibro(TLibro *L, int Pos, bool_t Cabecera)
-{
-	Cadena T, A, B, PI;
-	if (Cabecera == TRUE)
-	{
-		printf("%-*s%-*s%-*s%*s%*s%*s\n", 5, "POS", 58, "TITULO", 18, "ISBN", 4, "DIS", 4, "PRE", 4, "RES");
-		printf("     %-*s%-*s%-*s\n", 30, "AUTOR", 28, "PAIS (IDIOMA)", 12, "AÑO");
-		Formatea(B, "*", 93, '*');
-		printf("%s\n", B);
-	}
-	Formatea(T, L->Titulo, 58, ' ');
-	Formatea(A, L->Autor, 30, ' ');
-	strcpy(B, L->Pais);
-	strcat(B, " (");
-	strcat(B, L->Idioma);
-	strcat(B, ")");
-	Formatea(PI, B, 28, ' ');
-	printf("%-5d%s%-*s%*d%*d%*d\n", Pos + 1, T, 18, L->Isbn, 4, L->NoLibros, 4, L->NoPrestados, 4, L->NoListaEspera);
-	printf("     %s%s%-*d\n", A, PI, 12, L->Anio);
-}
 
 int menuPrincipal()
 {
