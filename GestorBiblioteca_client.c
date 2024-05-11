@@ -343,11 +343,11 @@ void gestorbiblioteca_1(char *host)
 					case 6: // ordenar libros
 					{
 						printf("Indique el criterio para ordenar los libros de la biblioteca...\n");
-						printf("0. Por ISBN\n1.Por titulo\n2.Por autor\n3.Por anho\n4.Por pais\n5.Por Idioma\n6.Por Numero de libros disponibles\n7.Por numero de numeros prestados\n8.Por numero de libros en espera\n");
+						printf("0. Por ISBN\n1.Por titulo\n2.Por autor\n3.Por anho\n4.Por pais\n5.Por Idioma\n6.Por Numero de libros disponibles\n7.Por numero de libros prestados\n8.Por numero de libros en espera\n");
 						int criterio = 0;
 
-						printf("Indique el ISBN del libro a retirar...\n");
-						scanf("%d", criterio);
+						printf("Indique el criterio de busqueda:\n");
+						scanf("%d", &criterio);
 
 						ordenar_1_arg.Campo = criterio;
 						ordenar_1_arg.Ida = idAdm;
@@ -368,10 +368,18 @@ void gestorbiblioteca_1(char *host)
 								break;
 							}
 						}
+						Pause;
+						break;
 					}
 					case 7: // buscar libros
 					{
-						printf("INdique un criterio para buscar libros en la biblioteca....\n");
+						printf("\nintroduzca el texto a buscar:");
+						scanf("%d", buscar_1_arg.Datos);
+
+						printf("\nIndique un criterio para buscar libros en la biblioteca....\nI. Por ISBN\nT. Por Titulo\nA. Por Autor\nP. Por Pais\nD. Por Idioma\n*. Todos los campos\n");
+
+						Pause;
+						break;
 					}
 					case 8: // listar libros
 					{
@@ -407,6 +415,10 @@ void gestorbiblioteca_1(char *host)
 			}
 		}
 		break;
+	}
+	case 2:
+	{
+		//opcion 2 del usuario normal
 	}
 	}
 	/*result_1 = conexion_1(&conexion_1_arg, clnt);

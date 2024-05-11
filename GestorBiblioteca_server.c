@@ -17,6 +17,10 @@ int IdAdmin = -1;		   // Copia del Identificador de Administración enviado al u
 Cadena NomFichero = "";	   // Copia del nombre del último fichero binario que se ha cargado en memoria.
 int CampoOrdenacion = 0;   // Copia del último campo de ordenación realizado
 
+
+/************************************************
+*	CONECTAR A ADMIN
+************************************************/
 int *conexion_1_svc(int *argp, struct svc_req *rqstp)
 {
 	static int result;
@@ -37,6 +41,9 @@ int *conexion_1_svc(int *argp, struct svc_req *rqstp)
 	return &result;
 }
 
+/***********************************************
+*	DESCONECTAR DE ADMIN
+************************************************/
 bool_t *
 desconexion_1_svc(int *argp, struct svc_req *rqstp)
 {
@@ -54,6 +61,9 @@ desconexion_1_svc(int *argp, struct svc_req *rqstp)
 	return &result;
 }
 
+/*********************************************
+*	CARGAR LA BIBLIOTECA EN MEMORIA
+**********************************************/
 int *cargardatos_1_svc(TConsulta *argp, struct svc_req *rqstp)
 {
 	printf("se estan cargando los datos de biblioteca\n");
@@ -91,7 +101,6 @@ int *cargardatos_1_svc(TConsulta *argp, struct svc_req *rqstp)
 				for (size_t i = 0; i < NumLibros; i++)
 				{
 
-				//	repo = Biblioteca[i];
 					printf("imprimir> %ld\n", i);
 					printf("%d %s %s ", repo.Anio, repo.Autor, repo.Idioma);
 					printf("%s %d %d %s %s\n", repo.Isbn, repo.NoLibros, repo.NoPrestados, repo.Pais, repo.Titulo);
@@ -105,6 +114,9 @@ int *cargardatos_1_svc(TConsulta *argp, struct svc_req *rqstp)
 	return &result;
 }
 
+/***************************************
+*	GUARDAR BIBLIOTECA EN FICHERO
+*****************************************/
 bool_t *
 guardardatos_1_svc(int *argp, struct svc_req *rqstp)
 {
@@ -117,6 +129,9 @@ guardardatos_1_svc(int *argp, struct svc_req *rqstp)
 	return &result;
 }
 
+/*****************************************
+*	SUBIR NUEVO LIBRO A LA BIBLIOTECA
+******************************************/
 int *nuevolibro_1_svc(TNuevo *argp, struct svc_req *rqstp)
 {
 	static int result;
@@ -143,6 +158,9 @@ int *nuevolibro_1_svc(TNuevo *argp, struct svc_req *rqstp)
 	return &result;
 }
 
+/****************************************************************
+*	COMPRAR MAS COPIAS (DIS) DE UNA LIBRO EN LA BIBLIOTECA
+*****************************************************************/
 int *comprar_1_svc(TComRet *argp, struct svc_req *rqstp)
 {
 	static int result;
@@ -170,6 +188,10 @@ int *comprar_1_svc(TComRet *argp, struct svc_req *rqstp)
 	return &result;
 }
 
+
+/****************************************************************
+*	RETIRAR N COPIAS (DIS) DE UN LIBRO EN LA BIBLIOTECA
+*****************************************************************/
 int *retirar_1_svc(TComRet *argp, struct svc_req *rqstp)
 {
 	static int result;
@@ -204,18 +226,69 @@ int *retirar_1_svc(TComRet *argp, struct svc_req *rqstp)
 	return &result;
 }
 
+
+/****************************************************************
+*	ORDENAR LIBROS EN LA BIBLIOTECA EN BASE A UN CRITERIO
+*****************************************************************/
+//usamos la implementacion de strcmp mediante la definicion del metodo compare
+int compareBooks(const void* a, const void* b) 
+{ 
+    switch (CampoOrdenacion)
+	{
+	case 0: //ordenar por ISBN
+		return strcmp(((struct TLibro *)a)->Isbn,((struct TLibro *)b)->Isbn);
+		break;
+	case 1: //ordenar por titulo
+		return strcmp(((struct TLibro *)a)->Titulo,((struct TLibro *)b)->Titulo);
+		break;
+	case 2: //ordenar por autor
+		return strcmp(((struct TLibro *)a)->Autor,((struct TLibro *)b)->Autor);
+		break; 
+	case 3: //ordenar por anio
+		return ((struct TLibro *)a)->Anio - ((struct TLibro *)b)->Anio;
+		break;
+	case 4: //ordenar por pais
+		return strcmp(((struct TLibro *)a)->Pais,((struct TLibro *)b)->Pais);
+		break;
+	case 5: //ordenar por idioma
+		return strcmp(((struct TLibro *)a)->Idioma,((struct TLibro *)b)->Idioma);
+		break;
+	case 6: // ordenar por numero de libros disponibles
+		return ((struct TLibro *)a)->NoLibros - ((struct TLibro *)b)->NoLibros;
+		break;
+	case 7: //ordenar por numero de libros prestados
+		return ((struct TLibro *)a)->NoPrestados - ((struct TLibro *)b)->NoPrestados;
+		break;
+	case 8: //ordenar por numero de libros en espera
+		return ((struct TLibro *)a)->NoListaEspera - ((struct TLibro *)b)->NoListaEspera;
+		break;
+	}
+} 
 bool_t *
 ordenar_1_svc(TOrdenacion *argp, struct svc_req *rqstp)
 {
 	static bool_t result;
 
-	/*
-	 * insert server code here
-	 */
+	if (argp->Ida != IdAdmin)
+	{
+		result = FALSE;
+	} else
+	{
+		result = TRUE;
+		CampoOrdenacion = argp->Campo;
+		//qsort se encarga de ordenar el vector
+		qsort(Biblioteca, NumLibros, sizeof(struct TLibro), compareBooks);
+		
+	}
 
 	return &result;
 }
 
+
+
+/****************************************************************
+*	DEVUELVE NUMERO DE LIBROS EN LA BIBLIOTECA
+*****************************************************************/
 int *nlibros_1_svc(int *argp, struct svc_req *rqstp)
 {
 	static int result;
@@ -232,6 +305,10 @@ int *nlibros_1_svc(int *argp, struct svc_req *rqstp)
 	return &result;
 }
 
+
+/****************************************************************
+*	SE HACE UNA BUSQUEDA MEDIANTE UN STRING
+*****************************************************************/
 int *buscar_1_svc(TConsulta *argp, struct svc_req *rqstp)
 {
 	static int result;
@@ -243,6 +320,10 @@ int *buscar_1_svc(TConsulta *argp, struct svc_req *rqstp)
 	return &result;
 }
 
+
+/****************************************************************
+*	MUESTRA EL LISTADO DE LIBROS DE LA BIBLIOTECA
+*****************************************************************/
 TLibro *
 descargar_1_svc(TPosicion *argp, struct svc_req *rqstp)
 {
@@ -260,6 +341,10 @@ descargar_1_svc(TPosicion *argp, struct svc_req *rqstp)
 	return &result;
 }
 
+
+/****************************************************************
+*	OPCION DE USUARIO PARA PEDIR LIBRO PRESTADO
+*****************************************************************/
 int *prestar_1_svc(TPosicion *argp, struct svc_req *rqstp)
 {
 	static int result;
