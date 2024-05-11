@@ -147,9 +147,25 @@ int *comprar_1_svc(TComRet *argp, struct svc_req *rqstp)
 {
 	static int result;
 
-	/*
-	 * insert server code here
-	 */
+	if (argp->Ida != IdAdmin)
+	{
+		result = -1;
+	}else
+	{
+		result = 0;
+		for (size_t i = 0; i < NumLibros; i++)
+		{
+			if (strstr(Biblioteca[i].Isbn, argp->Isbn))
+			{
+				Biblioteca[i].NoLibros = Biblioteca[i].NoLibros + argp->NoLibros;
+				result = 1;
+				break;
+			}
+			
+		}
+		
+	}
+	
 
 	return &result;
 }
@@ -158,9 +174,32 @@ int *retirar_1_svc(TComRet *argp, struct svc_req *rqstp)
 {
 	static int result;
 
-	/*
-	 * insert server code here
-	 */
+	
+	if (argp->Ida != IdAdmin)
+	{
+		result = -1;
+	}else
+	{
+		result = 0;
+		for (size_t i = 0; i < NumLibros; i++)
+		{
+			if (strstr(Biblioteca[i].Isbn, argp->Isbn))
+			{
+				if (Biblioteca[i].NoLibros - argp->NoLibros >= 0)
+				{
+					Biblioteca[i].NoLibros = Biblioteca[i].NoLibros - argp->NoLibros;
+				} else 
+				{
+					Biblioteca[i].NoLibros = 0;
+				}
+				
+				result = 1;
+				break;
+			}
+			
+		}
+		
+	}
 
 	return &result;
 }

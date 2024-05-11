@@ -265,24 +265,109 @@ void gestorbiblioteca_1(char *host)
 					case 4: // comprar libros
 					{
 						Cadena nIsbn = "";
+						int copias = 0;
+
 						printf("Indique el ISBN del libro a comprar...\n");
 						scanf("%s", nIsbn);
+						printf("Cuantas copias desea anhadir...\n");
+						scanf("%d", &copias);
+						comprar_1_arg.NoLibros = copias;
 						comprar_1_arg.Ida = idAdm;
 						strcpy(comprar_1_arg.Isbn, nIsbn);
+
+						// realizamos la compra del libro
 						result_6 = comprar_1(&comprar_1_arg, clnt);
-						// llamar a descargar
-						descargar_1_arg.Ida = idAdm;
-						descargar_1_arg.Pos = 0;
-						result_11 = descargar_1(&descargar_1_arg, clnt);
-						MostrarLibro(result_11, 0, TRUE);
+
+						if (result_6 == (int *)NULL)
+						{
+							clnt_perror(clnt, "call failed");
+						}
+						else
+						{
+							switch (*result_6)
+							{
+							case -1:
+								printf("id del administrador no coincide\n");
+								break;
+
+							case 0:
+								printf("no se encontro la isbn del libro\n");
+								break;
+							case 1:
+								printf("se anhadio una nueva copia del libro seleccionado...\n");
+								break;
+							}
+						}
+						Pause;
+						break;
 					}
 					case 5: // retirar libro
 					{
-						printf("Indique el ISBN del libro que desea retirar de la biblioteca...\n");
+						Cadena nIsbn = "";
+						int copias = 0;
+
+						printf("Indique el ISBN del libro a retirar...\n");
+						scanf("%s", nIsbn);
+						printf("Cuantas copias desea retirar...\n");
+						scanf("%d", &copias);
+
+						strcpy(retirar_1_arg.Isbn, nIsbn);
+						retirar_1_arg.Ida = idAdm;
+						retirar_1_arg.NoLibros = copias;
+						// realizamos la compra del libro
+						result_7 = retirar_1(&retirar_1_arg, clnt);
+
+						if (result_7 == (int *)NULL)
+						{
+							clnt_perror(clnt, "call failed");
+						}
+						else
+						{
+							switch (*result_7)
+							{
+							case -1:
+								printf("id del administrador no coincide\n");
+								break;
+
+							case 0:
+								printf("no se encontro la isbn del libro\n");
+								break;
+							case 1:
+								printf("se retiraron las copias del libro seleccionado...\n");
+								break;
+							}
+						}
+						Pause;
+						break;
 					}
 					case 6: // ordenar libros
 					{
 						printf("Indique el criterio para ordenar los libros de la biblioteca...\n");
+						printf("0. Por ISBN\n1.Por titulo\n2.Por autor\n3.Por anho\n4.Por pais\n5.Por Idioma\n6.Por Numero de libros disponibles\n7.Por numero de numeros prestados\n8.Por numero de libros en espera\n");
+						int criterio = 0;
+
+						printf("Indique el ISBN del libro a retirar...\n");
+						scanf("%d", criterio);
+
+						ordenar_1_arg.Campo = criterio;
+						ordenar_1_arg.Ida = idAdm;
+						result_8 = ordenar_1(&ordenar_1_arg, clnt);
+						if (result_8 == (bool_t *)NULL)
+						{
+							clnt_perror(clnt, "call failed");
+						} else 
+						{
+							switch (*result_8)
+							{
+							case FALSE:
+								printf("id del administrador no coincide\n");
+								break;
+							
+							case TRUE:
+								printf("*** La biblioteca ha sido ordenada correctamente.**\n");
+								break;
+							}
+						}
 					}
 					case 7: // buscar libros
 					{
