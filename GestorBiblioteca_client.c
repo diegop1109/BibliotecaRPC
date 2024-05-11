@@ -67,6 +67,7 @@ void MostrarLibro(TLibro *L, int Pos, bool_t Cabecera)
 	printf("%-5d%s%-*s%*d%*d%*d\n", Pos + 1, T, 18, L->Isbn, 4, L->NoLibros, 4, L->NoPrestados, 4, L->NoListaEspera);
 	printf("     %s%s%-*d\n", A, PI, 12, L->Anio);
 }
+
 void gestorbiblioteca_1(char *host)
 {
 	CLIENT *clnt;
@@ -109,6 +110,7 @@ void gestorbiblioteca_1(char *host)
 	int contrasenha = 0;
 	int idAdm = 0;
 	Cadena nFichero = "";
+	Cadena criterio = "";
 
 	switch (cual)
 	{
@@ -212,7 +214,7 @@ void gestorbiblioteca_1(char *host)
 							case FALSE:
 								printf("el id de administrador no coincide...");
 								break;
-							
+
 							case TRUE:
 								printf("*****************SE GUARDO CORRECTAMENTE EL NUEVO FICHERO*****************");
 								break;
@@ -393,10 +395,12 @@ void gestorbiblioteca_1(char *host)
 					}
 					case 7: // buscar libros
 					{
+						Cadena textoBuscar;
 						printf("\nintroduzca el texto a buscar:");
 						scanf("%d", buscar_1_arg.Datos);
 						buscar_1_arg.Ida = idAdm;
 						printf("\nIndique un criterio para buscar libros en la biblioteca....\nI. Por ISBN\nT. Por Titulo\nA. Por Autor\nP. Por Pais\nD. Por Idioma\n*. Todos los campos\n");
+						scanf("%s", criterio);
 						result_10 = buscar_1(&buscar_1_arg, clnt);
 						if (result_10 == (int *)NULL)
 						{
@@ -414,6 +418,19 @@ void gestorbiblioteca_1(char *host)
 								break;
 							case 1:
 								printf("*********ESTOS SON LOS RESULTADOS DE LA BUSQUEDA***********");
+								/*debido a que el metodo de buscar_svc no incluye un parametro para el criterio,
+								 * se va a incluir una funcion para hacer la busqueda desde el cliente*/
+								switch (criterio)
+								{
+								case 'I':
+									/* code */
+									break;
+								
+								default:
+									break;
+								}
+
+								Pause;
 								break;
 							}
 						}

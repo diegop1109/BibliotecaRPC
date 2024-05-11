@@ -336,10 +336,26 @@ int *nlibros_1_svc(int *argp, struct svc_req *rqstp)
 int *buscar_1_svc(TConsulta *argp, struct svc_req *rqstp)
 {
 	static int result;
+	int contador;
 
-	/*
-	 * insert server code here
-	 */
+	if (argp->Ida != IdAdmin)
+	{
+		return -1;
+	} else 
+	{
+		result = 0;
+		while (contador < NumLibros && result == 0)
+		{
+			if (strcmp(Biblioteca[contador].Isbn, argp->Datos) == 0)
+			{
+				result = 1;
+			}
+			else
+			{
+				contador++;
+			}
+		}
+	}
 
 	return &result;
 }
