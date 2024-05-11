@@ -199,6 +199,25 @@ void gestorbiblioteca_1(char *host)
 					case 2: // opcion guardar datos
 					{
 						printf("Guardar datos...\n");
+						guardardatos_1_arg = idAdm;
+						result_4 = guardardatos_1(&guardardatos_1_arg, clnt);
+						if (result_4 == (bool_t *)NULL)
+						{
+							clnt_perror(clnt, "call failed");
+						}
+						else
+						{
+							switch (*result_4)
+							{
+							case FALSE:
+								printf("el id de administrador no coincide...");
+								break;
+							
+							case TRUE:
+								printf("*****************SE GUARDO CORRECTAMENTE EL NUEVO FICHERO*****************");
+								break;
+							}
+						}
 						Pause;
 						break;
 					}
@@ -355,14 +374,15 @@ void gestorbiblioteca_1(char *host)
 						if (result_8 == (bool_t *)NULL)
 						{
 							clnt_perror(clnt, "call failed");
-						} else 
+						}
+						else
 						{
 							switch (*result_8)
 							{
 							case FALSE:
 								printf("id del administrador no coincide\n");
 								break;
-							
+
 							case TRUE:
 								printf("*** La biblioteca ha sido ordenada correctamente.**\n");
 								break;
@@ -375,9 +395,28 @@ void gestorbiblioteca_1(char *host)
 					{
 						printf("\nintroduzca el texto a buscar:");
 						scanf("%d", buscar_1_arg.Datos);
-
+						buscar_1_arg.Ida = idAdm;
 						printf("\nIndique un criterio para buscar libros en la biblioteca....\nI. Por ISBN\nT. Por Titulo\nA. Por Autor\nP. Por Pais\nD. Por Idioma\n*. Todos los campos\n");
-
+						result_10 = buscar_1(&buscar_1_arg, clnt);
+						if (result_10 == (int *)NULL)
+						{
+							clnt_perror(clnt, "call failed");
+						}
+						else
+						{
+							switch (*result_10)
+							{
+							case -1:
+								printf("id del administrador no coincide\n");
+								break;
+							case 0:
+								printf("*** no se encontraron libros con la descripcion proporcionada.**\n");
+								break;
+							case 1:
+								printf("*********ESTOS SON LOS RESULTADOS DE LA BUSQUEDA***********");
+								break;
+							}
+						}
 						Pause;
 						break;
 					}
@@ -418,7 +457,7 @@ void gestorbiblioteca_1(char *host)
 	}
 	case 2:
 	{
-		//opcion 2 del usuario normal
+		// opcion 2 del usuario normal
 	}
 	}
 	/*result_1 = conexion_1(&conexion_1_arg, clnt);

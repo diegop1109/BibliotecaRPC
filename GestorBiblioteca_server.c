@@ -122,9 +122,33 @@ guardardatos_1_svc(int *argp, struct svc_req *rqstp)
 {
 	static bool_t result;
 
-	/*
-	 * insert server code here
-	 */
+	FILE *nuevoFichero = NULL;
+	if (*argp != IdAdmin)
+	{
+		result = FALSE;
+	}
+	else
+	{
+		nuevoFichero = fopen(NomFichero, "wb");
+		if (nuevoFichero == NULL)
+		{
+			result = FALSE;
+		}else
+		{
+			if (Biblioteca == NULL || NumLibros <= 0)
+			{
+				result = FALSE;
+			}
+			else
+			{
+				result = TRUE;
+				fwrite(&NumLibros, sizeof(NumLibros), 1, nuevoFichero);					 
+				fwrite(Biblioteca, sizeof(TLibro) * NumLibros, NumLibros, nuevoFichero); 
+			}
+			fclose(nuevoFichero);
+		}
+		
+	}
 
 	return &result;
 }
