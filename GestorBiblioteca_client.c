@@ -397,7 +397,7 @@ void gestorbiblioteca_1(char *host)
 						Cadena buscari = "";
 						Cadena holamundo = "";
 						TLibro *resBusqueda;
-						int header = 0;
+						bool_t header = TRUE;
 						printf("introduzca el texto a buscar:\n");
 						scanf("%s", buscari);
 						strcpy(buscar_1_arg.Datos, buscari);
@@ -438,7 +438,7 @@ void gestorbiblioteca_1(char *host)
 							result_9 = nlibros_1(&nlibros_1_arg, clnt);
 							if (result_9 == (int *)NULL)
 							{
-								clnt_perror(clnt, "call failed");
+								clnt_perror(clnt, "call failed1");
 							}
 							else if (*result_9 == -1)
 							{
@@ -447,46 +447,107 @@ void gestorbiblioteca_1(char *host)
 							else
 							{
 								descargar_1_arg.Ida = idAdm;
-								
+
 								if (strcmp(holamundo, "T") == 0)
 								{
 									for (size_t i = 0; i < *result_9; i++)
 									{
 										descargar_1_arg.Pos = i;
 										resBusqueda = descargar_1(&descargar_1_arg, clnt);
-										if (result_11 == (TLibro *)NULL)
+
+										if (strstr(resBusqueda->Titulo, buscari))
 										{
-											clnt_perror(clnt, "call failed");
-										}
-										else
-										{
-											printf("titulo: %s",resBusqueda->Titulo);
-											if (strstr(resBusqueda->Titulo,buscari) != NULL)
+											if (header)
 											{
-												
+												MostrarLibro(resBusqueda, i, header);
+												header = FALSE;
 											}
-											
+											MostrarLibro(resBusqueda, i, FALSE);
 										}
 									}
 								}
 								else if (strcmp(holamundo, "A") == 0)
 								{
-									//
+									for (size_t i = 0; i < *result_9; i++)
+									{
+										descargar_1_arg.Pos = i;
+										resBusqueda = descargar_1(&descargar_1_arg, clnt);
+
+										if (strstr(resBusqueda->Autor, buscari))
+										{
+											if (header)
+											{
+												MostrarLibro(resBusqueda, i, header);
+												header = FALSE;
+											}
+											MostrarLibro(resBusqueda, i, FALSE);
+										}
+									}
 								}
 								else if (strcmp(holamundo, "P") == 0)
 								{
-									//
+									for (size_t i = 0; i < *result_9; i++)
+									{
+										descargar_1_arg.Pos = i;
+										resBusqueda = descargar_1(&descargar_1_arg, clnt);
+
+										if (strstr(resBusqueda->Pais, buscari))
+										{
+											if (header)
+											{
+												MostrarLibro(resBusqueda, i, header);
+												header = FALSE;
+											}
+											MostrarLibro(resBusqueda, i, FALSE);
+										}
+									}
 								}
 								else if (strcmp(holamundo, "D") == 0)
 								{
-									//
+									for (size_t i = 0; i < *result_9; i++)
+									{
+										descargar_1_arg.Pos = i;
+										resBusqueda = descargar_1(&descargar_1_arg, clnt);
+
+										if (strstr(resBusqueda->Idioma, buscari))
+										{
+											if (header)
+											{
+												MostrarLibro(resBusqueda, i, header);
+												header = FALSE;
+											}
+											MostrarLibro(resBusqueda, i, FALSE);
+										}
+									}
 								}
 								else if (strcmp(holamundo, "*") == 0)
 								{
-									/* code */
+									for (size_t i = 0; i < *result_9; i++)
+									{
+										descargar_1_arg.Pos = i;
+										resBusqueda = descargar_1(&descargar_1_arg, clnt);
+
+										if (strstr(resBusqueda->Titulo, buscari))
+										{
+											if (strstr(resBusqueda->Idioma, buscari))
+											{
+												if (strstr(resBusqueda->Pais, buscari))
+												{
+													if (strstr(resBusqueda->Autor, buscari))
+													{
+														if (header)
+														{
+															MostrarLibro(resBusqueda, i, header);
+															header = FALSE;
+														}
+														MostrarLibro(resBusqueda, i, FALSE);
+													}
+												}
+											}
+										}
+									}
 								}
 							}
-
 						}
 						Pause;
 						break;
