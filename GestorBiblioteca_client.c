@@ -110,7 +110,6 @@ void gestorbiblioteca_1(char *host)
 	int contrasenha = 0;
 	int idAdm = 0;
 	Cadena nFichero = "";
-	Cadena criterio = "";
 
 	switch (cual)
 	{
@@ -395,44 +394,99 @@ void gestorbiblioteca_1(char *host)
 					}
 					case 7: // buscar libros
 					{
-						Cadena textoBuscar;
-						printf("\nintroduzca el texto a buscar:");
-						scanf("%d", buscar_1_arg.Datos);
+						Cadena buscari = "";
+						Cadena holamundo = "";
+						TLibro *resBusqueda;
+						int header = 0;
+						printf("introduzca el texto a buscar:\n");
+						scanf("%s", buscari);
+						strcpy(buscar_1_arg.Datos, buscari);
 						buscar_1_arg.Ida = idAdm;
-						printf("\nIndique un criterio para buscar libros en la biblioteca....\nI. Por ISBN\nT. Por Titulo\nA. Por Autor\nP. Por Pais\nD. Por Idioma\n*. Todos los campos\n");
-						scanf("%s", criterio);
-						result_10 = buscar_1(&buscar_1_arg, clnt);
-						if (result_10 == (int *)NULL)
-						{
-							clnt_perror(clnt, "call failed");
-						}
-						else
-						{
-							switch (*result_10)
-							{
-							case -1:
-								printf("id del administrador no coincide\n");
-								break;
-							case 0:
-								printf("*** no se encontraron libros con la descripcion proporcionada.**\n");
-								break;
-							case 1:
-								printf("*********ESTOS SON LOS RESULTADOS DE LA BUSQUEDA***********");
-								/*debido a que el metodo de buscar_svc no incluye un parametro para el criterio,
-								 * se va a incluir una funcion para hacer la busqueda desde el cliente*/
-								switch (criterio)
-								{
-								case 'I':
-									/* code */
-									break;
-								
-								default:
-									break;
-								}
 
-								Pause;
-								break;
+						printf("Indique un criterio para buscar libros en la biblioteca....\nI. Por ISBN\nT. Por Titulo\nA. Por Autor\nP. Por Pais\nD. Por Idioma\n*. Todos los campos\n");
+						scanf("%s", holamundo);
+
+						// si la busqueda es por ISBN
+						if (strcmp(holamundo, "I") == 0)
+						{
+							result_10 = buscar_1(&buscar_1_arg, clnt);
+							if (result_10 == (int *)NULL)
+							{
+								clnt_perror(clnt, "call failed");
 							}
+							else if (*result_10 == -1)
+							{
+								printf("id del administrador no coincide\n");
+							}
+							else if (*result_10 == -2)
+							{
+								printf("*** no se encontraron libros con la descripcion proporcionada.**\n");
+							}
+							else
+							{
+								printf("*********ESTOS SON LOS RESULTADOS DE LA BUSQUEDA***********\n");
+								descargar_1_arg.Ida = idAdm;
+								descargar_1_arg.Pos = *result_10;
+								result_11 = descargar_1(&descargar_1_arg, clnt);
+								MostrarLibro(result_11, descargar_1_arg.Pos, TRUE);
+							}
+						}
+						else // si la busqueda es por otro campo (titulo, autor, pais, idioma o todos)
+						{
+							printf("*buscando entre las otras opciones**\n");
+							nlibros_1_arg = idAdm;
+							result_9 = nlibros_1(&nlibros_1_arg, clnt);
+							if (result_9 == (int *)NULL)
+							{
+								clnt_perror(clnt, "call failed");
+							}
+							else if (*result_9 == -1)
+							{
+								printf("no se han encontrado libros para listar\n");
+							}
+							else
+							{
+								descargar_1_arg.Ida = idAdm;
+								
+								if (strcmp(holamundo, "T") == 0)
+								{
+									for (size_t i = 0; i < *result_9; i++)
+									{
+										descargar_1_arg.Pos = i;
+										resBusqueda = descargar_1(&descargar_1_arg, clnt);
+										if (result_11 == (TLibro *)NULL)
+										{
+											clnt_perror(clnt, "call failed");
+										}
+										else
+										{
+											printf("titulo: %s",resBusqueda->Titulo);
+											if (strstr(resBusqueda->Titulo,buscari) != NULL)
+											{
+												
+											}
+											
+										}
+									}
+								}
+								else if (strcmp(holamundo, "A") == 0)
+								{
+									//
+								}
+								else if (strcmp(holamundo, "P") == 0)
+								{
+									//
+								}
+								else if (strcmp(holamundo, "D") == 0)
+								{
+									//
+								}
+								else if (strcmp(holamundo, "*") == 0)
+								{
+									/* code */
+								}
+							}
+
 						}
 						Pause;
 						break;

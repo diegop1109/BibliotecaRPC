@@ -330,29 +330,24 @@ int *nlibros_1_svc(int *argp, struct svc_req *rqstp)
 }
 
 
-/****************************************************************
-*	SE HACE UNA BUSQUEDA MEDIANTE UN STRING
-*****************************************************************/
+/***************************************************************************
+*	SE HACE UNA BUSQUEDA MEDIANTE UN STRING PARA DEVOLVER UNA POSICION
+***************************************************************************/
 int *buscar_1_svc(TConsulta *argp, struct svc_req *rqstp)
 {
 	static int result;
-	int contador;
 
 	if (argp->Ida != IdAdmin)
 	{
-		return -1;
+		result = -1;
 	} else 
 	{
-		result = 0;
-		while (contador < NumLibros && result == 0)
+		result = -2;
+		for (size_t i = 0; i < NumLibros; i++)
 		{
-			if (strcmp(Biblioteca[contador].Isbn, argp->Datos) == 0)
+			if (strcmp(Biblioteca[i].Isbn, argp->Datos) == 0)
 			{
-				result = 1;
-			}
-			else
-			{
-				contador++;
+				result = i;
 			}
 		}
 	}
