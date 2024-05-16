@@ -17,10 +17,9 @@ int IdAdmin = -1;		   // Copia del Identificador de Administración enviado al u
 Cadena NomFichero = "";	   // Copia del nombre del último fichero binario que se ha cargado en memoria.
 int CampoOrdenacion = 0;   // Copia del último campo de ordenación realizado
 
-
 /************************************************
-*	CONECTAR A ADMIN
-************************************************/
+ *	CONECTAR A ADMIN
+ ************************************************/
 int *conexion_1_svc(int *argp, struct svc_req *rqstp)
 {
 	static int result;
@@ -42,8 +41,8 @@ int *conexion_1_svc(int *argp, struct svc_req *rqstp)
 }
 
 /***********************************************
-*	DESCONECTAR DE ADMIN
-************************************************/
+ *	DESCONECTAR DE ADMIN
+ ************************************************/
 bool_t *
 desconexion_1_svc(int *argp, struct svc_req *rqstp)
 {
@@ -62,8 +61,8 @@ desconexion_1_svc(int *argp, struct svc_req *rqstp)
 }
 
 /*********************************************
-*	CARGAR LA BIBLIOTECA EN MEMORIA
-**********************************************/
+ *	CARGAR LA BIBLIOTECA EN MEMORIA
+ **********************************************/
 int *cargardatos_1_svc(TConsulta *argp, struct svc_req *rqstp)
 {
 	printf("se estan cargando los datos de biblioteca\n");
@@ -85,7 +84,7 @@ int *cargardatos_1_svc(TConsulta *argp, struct svc_req *rqstp)
 		else
 		{
 			fread(&NumLibros, sizeof(NumLibros), 1, fDatos);
-			//TLibro repo;//[NumLibros];
+			// TLibro repo;//[NumLibros];
 
 			Biblioteca = (TLibro *)malloc(sizeof(TLibro) * NumLibros);
 			printf("cuantos libros hay: %d\n", NumLibros);
@@ -97,7 +96,7 @@ int *cargardatos_1_svc(TConsulta *argp, struct svc_req *rqstp)
 			{
 				printf("se han cargado los datos de biblioteca\n");
 				fread(Biblioteca, sizeof(TLibro) * NumLibros, NumLibros, fDatos);
-				#define repo Biblioteca[i]
+#define repo Biblioteca[i]
 				for (size_t i = 0; i < NumLibros; i++)
 				{
 
@@ -105,7 +104,7 @@ int *cargardatos_1_svc(TConsulta *argp, struct svc_req *rqstp)
 					printf("%d %s %s ", repo.Anio, repo.Autor, repo.Idioma);
 					printf("%s %d %d %s %s\n", repo.Isbn, repo.NoLibros, repo.NoPrestados, repo.Pais, repo.Titulo);
 				}
-			    #undef repo	
+#undef repo
 			}
 			fclose(fDatos);
 		}
@@ -115,8 +114,8 @@ int *cargardatos_1_svc(TConsulta *argp, struct svc_req *rqstp)
 }
 
 /***************************************
-*	GUARDAR BIBLIOTECA EN FICHERO
-*****************************************/
+ *	GUARDAR BIBLIOTECA EN FICHERO
+ *****************************************/
 bool_t *
 guardardatos_1_svc(int *argp, struct svc_req *rqstp)
 {
@@ -133,7 +132,8 @@ guardardatos_1_svc(int *argp, struct svc_req *rqstp)
 		if (nuevoFichero == NULL)
 		{
 			result = FALSE;
-		}else
+		}
+		else
 		{
 			if (Biblioteca == NULL || NumLibros <= 0)
 			{
@@ -142,20 +142,19 @@ guardardatos_1_svc(int *argp, struct svc_req *rqstp)
 			else
 			{
 				result = TRUE;
-				fwrite(&NumLibros, sizeof(NumLibros), 1, nuevoFichero);					 
-				fwrite(Biblioteca, sizeof(TLibro) * NumLibros, NumLibros, nuevoFichero); 
+				fwrite(&NumLibros, sizeof(NumLibros), 1, nuevoFichero);
+				fwrite(Biblioteca, sizeof(TLibro) * NumLibros, NumLibros, nuevoFichero);
 			}
 			fclose(nuevoFichero);
 		}
-		
 	}
 
 	return &result;
 }
 
 /*****************************************
-*	SUBIR NUEVO LIBRO A LA BIBLIOTECA
-******************************************/
+ *	SUBIR NUEVO LIBRO A LA BIBLIOTECA
+ ******************************************/
 int *nuevolibro_1_svc(TNuevo *argp, struct svc_req *rqstp)
 {
 	static int result;
@@ -172,8 +171,8 @@ int *nuevolibro_1_svc(TNuevo *argp, struct svc_req *rqstp)
 			   argp->Libro.Anio, argp->Libro.Pais, argp->Libro.Idioma);
 		NumLibros = NumLibros + 1;
 		Biblioteca = (TLibro *)realloc(Biblioteca, sizeof(TLibro) * NumLibros);
-		Biblioteca[NumLibros-1] = argp->Libro; //error
-		int i = NumLibros-1;
+		Biblioteca[NumLibros - 1] = argp->Libro; // error
+		int i = NumLibros - 1;
 		printf("imprimir> %d\n", i);
 		printf("%d %s %s ", Biblioteca[i].Anio, Biblioteca[i].Autor, Biblioteca[i].Idioma);
 		printf("%s %d %d %s %s\n", Biblioteca[i].Isbn, Biblioteca[i].NoLibros, Biblioteca[i].NoPrestados, Biblioteca[i].Pais, Biblioteca[i].Titulo);
@@ -183,8 +182,8 @@ int *nuevolibro_1_svc(TNuevo *argp, struct svc_req *rqstp)
 }
 
 /****************************************************************
-*	COMPRAR MAS COPIAS (DIS) DE UNA LIBRO EN LA BIBLIOTECA
-*****************************************************************/
+ *	COMPRAR MAS COPIAS (DIS) DE UNA LIBRO EN LA BIBLIOTECA
+ *****************************************************************/
 int *comprar_1_svc(TComRet *argp, struct svc_req *rqstp)
 {
 	static int result;
@@ -192,7 +191,8 @@ int *comprar_1_svc(TComRet *argp, struct svc_req *rqstp)
 	if (argp->Ida != IdAdmin)
 	{
 		result = -1;
-	}else
+	}
+	else
 	{
 		result = 0;
 		for (size_t i = 0; i < NumLibros; i++)
@@ -203,28 +203,23 @@ int *comprar_1_svc(TComRet *argp, struct svc_req *rqstp)
 				result = 1;
 				break;
 			}
-			
 		}
-		
 	}
-	
 
 	return &result;
 }
 
-
 /****************************************************************
-*	RETIRAR N COPIAS (DIS) DE UN LIBRO EN LA BIBLIOTECA
-*****************************************************************/
+ *	RETIRAR N COPIAS (DIS) DE UN LIBRO EN LA BIBLIOTECA
+ *****************************************************************/
 int *retirar_1_svc(TComRet *argp, struct svc_req *rqstp)
 {
 	static int result;
-
-	
 	if (argp->Ida != IdAdmin)
 	{
 		result = -1;
-	}else
+	}
+	else
 	{
 		result = 0;
 		for (size_t i = 0; i < NumLibros; i++)
@@ -234,60 +229,57 @@ int *retirar_1_svc(TComRet *argp, struct svc_req *rqstp)
 				if (Biblioteca[i].NoLibros - argp->NoLibros >= 0)
 				{
 					Biblioteca[i].NoLibros = Biblioteca[i].NoLibros - argp->NoLibros;
-				} else 
+				}
+				else
 				{
 					Biblioteca[i].NoLibros = 0;
 				}
-				
+
 				result = 1;
 				break;
 			}
-			
 		}
-		
 	}
-
 	return &result;
 }
 
-
 /****************************************************************
-*	ORDENAR LIBROS EN LA BIBLIOTECA EN BASE A UN CRITERIO
-*****************************************************************/
-//usamos la implementacion de strcmp mediante la definicion del metodo compare
-int compareBooks(const void* a, const void* b) 
-{ 
-    switch (CampoOrdenacion)
+ *	ORDENAR LIBROS EN LA BIBLIOTECA EN BASE A UN CRITERIO
+ *****************************************************************/
+// usamos la implementacion de strcmp mediante la definicion del metodo compare
+int compareBooks(const void *a, const void *b)
+{
+	switch (CampoOrdenacion)
 	{
-	case 0: //ordenar por ISBN
-		return strcmp(((struct TLibro *)a)->Isbn,((struct TLibro *)b)->Isbn);
+	case 0: // ordenar por ISBN
+		return strcmp(((struct TLibro *)a)->Isbn, ((struct TLibro *)b)->Isbn);
 		break;
-	case 1: //ordenar por titulo
-		return strcmp(((struct TLibro *)a)->Titulo,((struct TLibro *)b)->Titulo);
+	case 1: // ordenar por titulo
+		return strcmp(((struct TLibro *)a)->Titulo, ((struct TLibro *)b)->Titulo);
 		break;
-	case 2: //ordenar por autor
-		return strcmp(((struct TLibro *)a)->Autor,((struct TLibro *)b)->Autor);
-		break; 
-	case 3: //ordenar por anio
+	case 2: // ordenar por autor
+		return strcmp(((struct TLibro *)a)->Autor, ((struct TLibro *)b)->Autor);
+		break;
+	case 3: // ordenar por anio
 		return ((struct TLibro *)a)->Anio - ((struct TLibro *)b)->Anio;
 		break;
-	case 4: //ordenar por pais
-		return strcmp(((struct TLibro *)a)->Pais,((struct TLibro *)b)->Pais);
+	case 4: // ordenar por pais
+		return strcmp(((struct TLibro *)a)->Pais, ((struct TLibro *)b)->Pais);
 		break;
-	case 5: //ordenar por idioma
-		return strcmp(((struct TLibro *)a)->Idioma,((struct TLibro *)b)->Idioma);
+	case 5: // ordenar por idioma
+		return strcmp(((struct TLibro *)a)->Idioma, ((struct TLibro *)b)->Idioma);
 		break;
 	case 6: // ordenar por numero de libros disponibles
 		return ((struct TLibro *)a)->NoLibros - ((struct TLibro *)b)->NoLibros;
 		break;
-	case 7: //ordenar por numero de libros prestados
+	case 7: // ordenar por numero de libros prestados
 		return ((struct TLibro *)a)->NoPrestados - ((struct TLibro *)b)->NoPrestados;
 		break;
-	case 8: //ordenar por numero de libros en espera
+	case 8: // ordenar por numero de libros en espera
 		return ((struct TLibro *)a)->NoListaEspera - ((struct TLibro *)b)->NoListaEspera;
 		break;
 	}
-} 
+}
 bool_t *
 ordenar_1_svc(TOrdenacion *argp, struct svc_req *rqstp)
 {
@@ -296,23 +288,21 @@ ordenar_1_svc(TOrdenacion *argp, struct svc_req *rqstp)
 	if (argp->Ida != IdAdmin)
 	{
 		result = FALSE;
-	} else
+	}
+	else
 	{
 		result = TRUE;
 		CampoOrdenacion = argp->Campo;
-		//qsort se encarga de ordenar el vector
+		// qsort se encarga de ordenar el vector
 		qsort(Biblioteca, NumLibros, sizeof(struct TLibro), compareBooks);
-		
 	}
 
 	return &result;
 }
 
-
-
 /****************************************************************
-*	DEVUELVE NUMERO DE LIBROS EN LA BIBLIOTECA
-*****************************************************************/
+ *	DEVUELVE NUMERO DE LIBROS EN LA BIBLIOTECA
+ *****************************************************************/
 int *nlibros_1_svc(int *argp, struct svc_req *rqstp)
 {
 	static int result;
@@ -320,30 +310,31 @@ int *nlibros_1_svc(int *argp, struct svc_req *rqstp)
 	if (*argp != IdAdmin && *argp != 3)
 	{
 		result = -1;
-	} else 
+	}
+	else
 	{
 		result = NumLibros;
 	}
-	
 
 	return &result;
 }
 
-
 /***************************************************************************
-*	SE HACE UNA BUSQUEDA MEDIANTE UN STRING PARA DEVOLVER UNA POSICION
-***************************************************************************/
+ *	SE HACE UNA BUSQUEDA MEDIANTE UN STRING PARA DEVOLVER UNA POSICION
+ ***************************************************************************/
 int *buscar_1_svc(TConsulta *argp, struct svc_req *rqstp)
 {
 	static int result;
 	if (argp->Ida != IdAdmin && argp->Ida != 3)
 	{
 		result = -1;
-	} else 
+	}
+	else
 	{
 		result = -2;
 		for (size_t i = 0; i < NumLibros; i++)
 		{
+			printf("A");
 			if (strcmp(Biblioteca[i].Isbn, argp->Datos) == 0)
 			{
 				result = i;
@@ -354,10 +345,9 @@ int *buscar_1_svc(TConsulta *argp, struct svc_req *rqstp)
 	return &result;
 }
 
-
 /****************************************************************
-*	MUESTRA EL LISTADO DE LIBROS DE LA BIBLIOTECA
-*****************************************************************/
+ *	MUESTRA EL LISTADO DE LIBROS DE LA BIBLIOTECA
+ *****************************************************************/
 TLibro *
 descargar_1_svc(TPosicion *argp, struct svc_req *rqstp)
 {
@@ -366,37 +356,72 @@ descargar_1_svc(TPosicion *argp, struct svc_req *rqstp)
 	if (argp->Ida != IdAdmin && argp->Ida != 3)
 	{
 		return NULL;
-	} else 
-	{
-		result = Biblioteca[argp->Pos];	
 	}
-	
+	else
+	{
+		result = Biblioteca[argp->Pos];
+	}
 
 	return &result;
 }
 
-
 /****************************************************************
-*	OPCION DE USUARIO PARA PEDIR LIBRO PRESTADO
-*****************************************************************/
+ *	OPCION DE USUARIO PARA PEDIR LIBRO PRESTADO
+ *****************************************************************/
 int *prestar_1_svc(TPosicion *argp, struct svc_req *rqstp)
 {
 	static int result;
-
-	/*
-	 * insert server code here
-	 */
+	if (argp->Ida != IdAdmin && argp->Ida != 3)
+	{
+		result = -2;
+	}
+	else
+	{
+		result = -1;
+		if (Biblioteca[argp->Pos].NoLibros > 0)
+		{
+			result = 1;
+			Biblioteca[argp->Pos].NoLibros = Biblioteca[argp->Pos].NoLibros - 1;
+			Biblioteca[argp->Pos].NoPrestados = Biblioteca[argp->Pos].NoPrestados + 1;
+		}
+		else
+		{
+			result = 0;
+			Biblioteca[argp->Pos].NoListaEspera = Biblioteca[argp->Pos].NoListaEspera + 1;
+		}
+	}
 
 	return &result;
 }
 
+/****************************************************************
+ *	OPCION DE USUARIO PARA DEVOLVER LIBRO PRESTADO
+ *****************************************************************/
 int *devolver_1_svc(TPosicion *argp, struct svc_req *rqstp)
 {
 	static int result;
+	if (argp->Ida != IdAdmin && argp->Ida != 3)
+	{
+		result = -1;
+	}
+	else
+	{
+		if (Biblioteca[argp->Pos].NoListaEspera > 0)
+		{
+			result = 0;
+			Biblioteca[argp->Pos].NoLibros = Biblioteca[argp->Pos].NoListaEspera - 1;
+			Biblioteca[argp->Pos].NoPrestados = Biblioteca[argp->Pos].NoPrestados + 1;
+		}
+		else if(Biblioteca[argp->Pos].NoPrestados > 0)
+		{
+			result = 1;
+			Biblioteca[argp->Pos].NoPrestados = Biblioteca[argp->Pos].NoPrestados - 1;
+			Biblioteca[argp->Pos].NoLibros = Biblioteca[argp->Pos].NoLibros + 1;
 
-	/*
-	 * insert server code here
-	 */
-
+		} else
+		{
+			result = 2;
+		}
+	}
 	return &result;
 }

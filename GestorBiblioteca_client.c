@@ -46,7 +46,6 @@ void Formatea(char *Salida, const char *p, int ancho, char Caracter)
 
 	sprintf(Salida, "%s%s", p, vacia);
 }
-
 void MostrarLibro(TLibro *L, int Pos, bool_t Cabecera)
 {
 	Cadena T, A, B, PI;
@@ -67,6 +66,7 @@ void MostrarLibro(TLibro *L, int Pos, bool_t Cabecera)
 	printf("%-5d%s%-*s%*d%*d%*d\n", Pos + 1, T, 18, L->Isbn, 4, L->NoLibros, 4, L->NoPrestados, 4, L->NoListaEspera);
 	printf("     %s%s%-*d\n", A, PI, 12, L->Anio);
 }
+
 void buscarTitulo(TPosicion descargar_1_arg, int result_9, CLIENT *clnt, bool_t header, Cadena buscari)
 {
 	TLibro *resBusqueda;
@@ -159,6 +159,84 @@ void buscarTodosLosCampos(TPosicion descargar_1_arg, int result_9, CLIENT *clnt,
 	}
 }
 
+void metodoBuscar(TConsulta buscar_1_arg, TPosicion descargar_1_arg, int nlibros_1_arg,
+				  int idAdm, CLIENT *clnt, int *result_10, int *result_9, TLibro *result_11)
+{
+	Cadena buscari = "";
+	Cadena holamundo = "";
+	printf("introduzca el texto a buscar:\n");
+	scanf("%s", buscari);
+	strcpy(buscar_1_arg.Datos, buscari);
+	buscar_1_arg.Ida = idAdm;
+
+	printf("Indique un criterio para buscar libros en la biblioteca....\nI. Por ISBN\nT. Por Titulo\nA. Por Autor\nP. Por Pais\nD. Por Idioma\n*. Todos los campos\n");
+	scanf("%s", holamundo);
+
+	// si la busqueda es por ISBN
+	if (strcmp(holamundo, "I") == 0)
+	{
+		result_10 = buscar_1(&buscar_1_arg, clnt);
+		if (result_10 == (int *)NULL)
+		{
+			clnt_perror(clnt, "call failed");
+		}
+		else if (*result_10 == -1)
+		{
+			printf("id del administrador no coincide\n");
+		}
+		else if (*result_10 == -2)
+		{
+			printf("*** no se encontraron libros con la descripcion proporcionada.**\n");
+		}
+		else
+		{
+			printf("*********ESTOS SON LOS RESULTADOS DE LA BUSQUEDA***********\n");
+			descargar_1_arg.Ida = idAdm;
+			descargar_1_arg.Pos = *result_10;
+			result_11 = descargar_1(&descargar_1_arg, clnt);
+			MostrarLibro(result_11, descargar_1_arg.Pos, TRUE);
+		}
+	}
+	else // si la busqueda es por otro campo (titulo, autor, pais, idioma o todos)
+	{
+		printf("*buscando entre las otras opciones**\n");
+		nlibros_1_arg = idAdm;
+		result_9 = nlibros_1(&nlibros_1_arg, clnt);
+		if (result_9 == (int *)NULL)
+		{
+			clnt_perror(clnt, "call failed1");
+		}
+		else if (*result_9 == -1)
+		{
+			printf("no se han encontrado libros para listar\n");
+		}
+		else
+		{
+			descargar_1_arg.Ida = idAdm;
+			if (strcmp(holamundo, "T") == 0)
+			{
+				buscarTitulo(descargar_1_arg, *result_9, clnt, TRUE, buscari);
+			}
+			else if (strcmp(holamundo, "A") == 0)
+			{
+				buscarAutor(descargar_1_arg, *result_9, clnt, TRUE, buscari);
+			}
+			else if (strcmp(holamundo, "P") == 0)
+			{
+				buscarPais(descargar_1_arg, *result_9, clnt, TRUE, buscari);
+			}
+			else if (strcmp(holamundo, "D") == 0)
+			{
+				buscarIdioma(descargar_1_arg, *result_9, clnt, TRUE, buscari);
+			}
+			else if (strcmp(holamundo, "*") == 0)
+			{
+				buscarTodosLosCampos(descargar_1_arg, *result_9, clnt, TRUE, buscari);
+			}
+		}
+	}
+}
+
 void gestorbiblioteca_1(char *host)
 {
 	CLIENT *clnt;
@@ -197,334 +275,308 @@ void gestorbiblioteca_1(char *host)
 		exit(1);
 	}
 #endif /* DEBUG */
-	int cual = menuPrincipal();
-	int contrasenha = 0;
-	int idAdm = 0;
-	Cadena nFichero = "";
 
-	switch (cual)
+	int cual = 0;
+	int cual2 = 0;
+	do
 	{
-	case 0:
-	{
-		printf("<<<<<<hasta pronto desde el menu usuario>>>>>>>\n");
-		exit(2);
-		break;
-	}
-	case 1:
-	{
-		printf("Por favor inserte la contraseña de Administracion:\n");
-		scanf("%d", &contrasenha);
-		conexion_1_arg = contrasenha;
-		result_1 = conexion_1(&conexion_1_arg, clnt);
-		if (result_1 == (int *)NULL)
+
+		cual = menuPrincipal();
+		int contrasenha = 0;
+		int idAdm = 0;
+		Cadena nFichero = "";
+
+		switch (cual)
 		{
-			clnt_perror(clnt, "call failed");
+		case 0:
+		{
+			printf("<<<<<<hasta pronto desde el menu usuario>>>>>>>\n");
+			exit(2);
+			break;
 		}
-		else
+		case 1:
 		{
-			if (*result_1 == -1)
+			printf("Por favor inserte la contraseña de Administracion:\n");
+			scanf("%d", &contrasenha);
+			conexion_1_arg = contrasenha;
+			result_1 = conexion_1(&conexion_1_arg, clnt);
+			if (result_1 == (int *)NULL)
 			{
-				printf("*********ACCESO NO AUTORIZADO, YA HAY UN ADMINISTRADOR EN EL SISTEMA**********\n");
-			}
-			else if (*result_1 == -2)
-			{
-				printf("***************CONTRASENHA INCORRECTA******************\n");
+				clnt_perror(clnt, "call failed");
 			}
 			else
 			{
-
-				idAdm = *result_1; // guardamos el id del admin
-				printf("*****************INICIO DE SESION ADMIN***************\n");
-				Pause;
-				do
+				if (*result_1 == -1)
 				{
-					cual = menuAdministracion();
-					// llamado a las opciones del menu admin
-					switch (cual)
+					printf("*********ACCESO NO AUTORIZADO, YA HAY UN ADMINISTRADOR EN EL SISTEMA**********\n");
+				}
+				else if (*result_1 == -2)
+				{
+					printf("***************CONTRASENHA INCORRECTA******************\n");
+				}
+				else
+				{
+					idAdm = *result_1; // guardamos el id del admin
+					printf("*****************INICIO DE SESION ADMIN***************\n");
+					Pause;
+					do
 					{
-					case 0: // logoff
-						result_2 = desconexion_1(&idAdm, clnt);
-						if (result_2 == (bool_t *)NULL)
+						cual2 = menuAdministracion();
+						// llamado a las opciones del menu admin
+						switch (cual2)
 						{
-							clnt_perror(clnt, "call failed");
-						}
-						else
-						{
-							switch (*result_2)
-							{
-							case FALSE:
-								printf("FALSE ERROR: IDAdmin no coincide con los parametros\n");
-								break;
-
-							case TRUE:
-								printf("cerrando sesion de administrador...\n");
-								break;
-							}
-						}
-						Pause;
-						break;
-					case 1: // cargar datos
-					{
-						printf("Introduce el nombre del fichero de datos:\n");
-						scanf("%s", nFichero);
-						strcpy(cargardatos_1_arg.Datos, nFichero);
-						cargardatos_1_arg.Ida = *result_1;
-						result_3 = cargardatos_1(&cargardatos_1_arg, clnt);
-						if (*result_3 == -1)
-						{
-							printf("ERROR: FALLO EN AUTENTICACION DE USUARIO ADMIN\n");
-						}
-						else if (*result_3 == 0)
-						{
-							printf("ERROR: NO HAY LIBROS EN EL FICHERO\n");
-						}
-						else
-						{
-							printf("SE LAN SUBIDO LOS LIBROS EXITOSAMENTE\n");
-						}
-						Pause;
-						break;
-					}
-					case 2: // opcion guardar datos
-					{
-						printf("Guardar datos...\n");
-						guardardatos_1_arg = idAdm;
-						result_4 = guardardatos_1(&guardardatos_1_arg, clnt);
-						if (result_4 == (bool_t *)NULL)
-						{
-							clnt_perror(clnt, "call failed");
-						}
-						else
-						{
-							switch (*result_4)
-							{
-							case FALSE:
-								printf("el id de administrador no coincide...");
-								break;
-
-							case TRUE:
-								printf("*****************SE GUARDO CORRECTAMENTE EL NUEVO FICHERO*****************");
-								break;
-							}
-						}
-						Pause;
-						break;
-					}
-					case 3: // nuevo libro
-					{
-
-						// variables para los datos del libro
-						Cadena nuevoIsbn = "";
-						Cadena nuevoAutor = "";
-						Cadena nuevoTitulo = "";
-						int nuevoAnho = 0;
-						Cadena nuevoPais = "";
-						Cadena nuevoIdioma = "";
-
-						// idadmin
-						nuevolibro_1_arg.Ida = idAdm;
-						// escaner
-						printf("introducir datos de nuevo libro....\n");
-						printf("introducir ISBN: \n");
-						scanf("%s", nuevoIsbn);
-						printf("introducir el autor: \n");
-						scanf("%s", nuevoAutor);
-						printf("introducir titulo: \n");
-						scanf("%s", nuevoTitulo);
-						printf("introducir anho: \n");
-						scanf("%d", &nuevoAnho);
-						printf("introducir pais: \n");
-						scanf("%s", nuevoPais);
-						printf("introducir idioma: \n");
-						scanf("%s", nuevoIdioma);
-
-						// settear datos en el nuevo libro
-						strcpy(nuevolibro_1_arg.Libro.Isbn, nuevoIsbn);
-						strcpy(nuevolibro_1_arg.Libro.Autor, nuevoAutor);
-						strcpy(nuevolibro_1_arg.Libro.Titulo, nuevoTitulo);
-						nuevolibro_1_arg.Libro.Anio = nuevoAnho;
-						strcpy(nuevolibro_1_arg.Libro.Pais, nuevoPais);
-						strcpy(nuevolibro_1_arg.Libro.Idioma, nuevoIdioma);
-						nuevolibro_1_arg.Libro.NoLibros = 0;
-						nuevolibro_1_arg.Libro.NoListaEspera = 0;
-						nuevolibro_1_arg.Libro.NoPrestados = 0;
-						// probando imprimir por terminal
-						printf("datos del nuevo libro-> Isbn:%s Autor:%s Titulo:%s Anho:%d Pais:%s Idioma:%s\n",
-							   nuevolibro_1_arg.Libro.Isbn, nuevolibro_1_arg.Libro.Autor, nuevolibro_1_arg.Libro.Titulo,
-							   nuevolibro_1_arg.Libro.Anio, nuevolibro_1_arg.Libro.Pais, nuevolibro_1_arg.Libro.Idioma);
-
-						// cargamos los datos al servidor
-						result_3 = nuevolibro_1(&nuevolibro_1_arg, clnt);
-						if (result_3 == (int *)NULL)
-						{
-							clnt_perror(clnt, "call failed\n");
-						}
-						else if (*result_3 == -1)
-						{
-							printf("id del administrador no coincide\n");
-						}
-						else if (*result_3 == 0)
-						{
-							printf("se cargo el nuevo libro exitosamente\n");
-						}
-						Pause;
-						break;
-					}
-					case 4: // comprar libros
-					{
-						Cadena nIsbn = "";
-						int copias = 0;
-
-						printf("Indique el ISBN del libro a comprar...\n");
-						scanf("%s", nIsbn);
-						printf("Cuantas copias desea anhadir...\n");
-						scanf("%d", &copias);
-						comprar_1_arg.NoLibros = copias;
-						comprar_1_arg.Ida = idAdm;
-						strcpy(comprar_1_arg.Isbn, nIsbn);
-
-						// realizamos la compra del libro
-						result_6 = comprar_1(&comprar_1_arg, clnt);
-
-						if (result_6 == (int *)NULL)
-						{
-							clnt_perror(clnt, "call failed");
-						}
-						else
-						{
-							switch (*result_6)
-							{
-							case -1:
-								printf("id del administrador no coincide\n");
-								break;
-
-							case 0:
-								printf("no se encontro la isbn del libro\n");
-								break;
-							case 1:
-								printf("se anhadio una nueva copia del libro seleccionado...\n");
-								break;
-							}
-						}
-						Pause;
-						break;
-					}
-					case 5: // retirar libro
-					{
-						Cadena nIsbn = "";
-						int copias = 0;
-
-						printf("Indique el ISBN del libro a retirar...\n");
-						scanf("%s", nIsbn);
-						printf("Cuantas copias desea retirar...\n");
-						scanf("%d", &copias);
-
-						strcpy(retirar_1_arg.Isbn, nIsbn);
-						retirar_1_arg.Ida = idAdm;
-						retirar_1_arg.NoLibros = copias;
-						// realizamos la compra del libro
-						result_7 = retirar_1(&retirar_1_arg, clnt);
-
-						if (result_7 == (int *)NULL)
-						{
-							clnt_perror(clnt, "call failed");
-						}
-						else
-						{
-							switch (*result_7)
-							{
-							case -1:
-								printf("id del administrador no coincide\n");
-								break;
-
-							case 0:
-								printf("no se encontro la isbn del libro\n");
-								break;
-							case 1:
-								printf("se retiraron las copias del libro seleccionado...\n");
-								break;
-							}
-						}
-						Pause;
-						break;
-					}
-					case 6: // ordenar libros
-					{
-						printf("Indique el criterio para ordenar los libros de la biblioteca...\n");
-						printf("0. Por ISBN\n1.Por titulo\n2.Por autor\n3.Por anho\n4.Por pais\n5.Por Idioma\n6.Por Numero de libros disponibles\n7.Por numero de libros prestados\n8.Por numero de libros en espera\n");
-						int criterio = 0;
-
-						printf("Indique el criterio de busqueda:\n");
-						scanf("%d", &criterio);
-
-						ordenar_1_arg.Campo = criterio;
-						ordenar_1_arg.Ida = idAdm;
-						result_8 = ordenar_1(&ordenar_1_arg, clnt);
-						if (result_8 == (bool_t *)NULL)
-						{
-							clnt_perror(clnt, "call failed");
-						}
-						else
-						{
-							switch (*result_8)
-							{
-							case FALSE:
-								printf("id del administrador no coincide\n");
-								break;
-
-							case TRUE:
-								printf("*** La biblioteca ha sido ordenada correctamente.**\n");
-								break;
-							}
-						}
-						Pause;
-						break;
-					}
-					case 7: // buscar libros
-					{
-						Cadena buscari = "";
-						Cadena holamundo = "";
-						printf("introduzca el texto a buscar:\n");
-						scanf("%s", buscari);
-						strcpy(buscar_1_arg.Datos, buscari);
-						buscar_1_arg.Ida = idAdm;
-
-						printf("Indique un criterio para buscar libros en la biblioteca....\nI. Por ISBN\nT. Por Titulo\nA. Por Autor\nP. Por Pais\nD. Por Idioma\n*. Todos los campos\n");
-						scanf("%s", holamundo);
-
-						// si la busqueda es por ISBN
-						if (strcmp(holamundo, "I") == 0)
-						{
-							result_10 = buscar_1(&buscar_1_arg, clnt);
-							if (result_10 == (int *)NULL)
+						case 0: // logoff
+							result_2 = desconexion_1(&idAdm, clnt);
+							if (result_2 == (bool_t *)NULL)
 							{
 								clnt_perror(clnt, "call failed");
 							}
-							else if (*result_10 == -1)
+							else
 							{
-								printf("id del administrador no coincide\n");
+								switch (*result_2)
+								{
+								case FALSE:
+									printf("FALSE ERROR: IDAdmin no coincide con los parametros\n");
+									break;
+
+								case TRUE:
+									printf("cerrando sesion de administrador...\n");
+									break;
+								}
 							}
-							else if (*result_10 == -2)
+							Pause;
+							break;
+						case 1: // cargar datos
+						{
+							printf("Introduce el nombre del fichero de datos:\n");
+							scanf("%s", nFichero);
+							strcpy(cargardatos_1_arg.Datos, nFichero);
+							cargardatos_1_arg.Ida = *result_1;
+							result_3 = cargardatos_1(&cargardatos_1_arg, clnt);
+							if (*result_3 == -1)
 							{
-								printf("*** no se encontraron libros con la descripcion proporcionada.**\n");
+								printf("ERROR: FALLO EN AUTENTICACION DE USUARIO ADMIN\n");
+							}
+							else if (*result_3 == 0)
+							{
+								printf("ERROR: NO HAY LIBROS EN EL FICHERO\n");
 							}
 							else
 							{
-								printf("*********ESTOS SON LOS RESULTADOS DE LA BUSQUEDA***********\n");
-								descargar_1_arg.Ida = idAdm;
-								descargar_1_arg.Pos = *result_10;
-								result_11 = descargar_1(&descargar_1_arg, clnt);
-								MostrarLibro(result_11, descargar_1_arg.Pos, TRUE);
+								printf("SE LAN SUBIDO LOS LIBROS EXITOSAMENTE\n");
 							}
+							Pause;
+							break;
 						}
-						else // si la busqueda es por otro campo (titulo, autor, pais, idioma o todos)
+						case 2: // opcion guardar datos
 						{
-							printf("*buscando entre las otras opciones**\n");
+							printf("Guardar datos...\n");
+							guardardatos_1_arg = idAdm;
+							result_4 = guardardatos_1(&guardardatos_1_arg, clnt);
+							if (result_4 == (bool_t *)NULL)
+							{
+								clnt_perror(clnt, "call failed");
+							}
+							else
+							{
+								switch (*result_4)
+								{
+								case FALSE:
+									printf("el id de administrador no coincide...");
+									break;
+
+								case TRUE:
+									printf("*****************SE GUARDO CORRECTAMENTE EL NUEVO FICHERO*****************");
+									break;
+								}
+							}
+							Pause;
+							break;
+						}
+						case 3: // nuevo libro
+						{
+
+							// variables para los datos del libro
+							Cadena nuevoIsbn = "";
+							Cadena nuevoAutor = "";
+							Cadena nuevoTitulo = "";
+							int nuevoAnho = 0;
+							Cadena nuevoPais = "";
+							Cadena nuevoIdioma = "";
+
+							// idadmin
+							nuevolibro_1_arg.Ida = idAdm;
+							// escaner
+							printf("introducir datos de nuevo libro....\n");
+							printf("introducir ISBN: \n");
+							scanf("%s", nuevoIsbn);
+							printf("introducir el autor: \n");
+							scanf("%s", nuevoAutor);
+							printf("introducir titulo: \n");
+							scanf("%s", nuevoTitulo);
+							printf("introducir anho: \n");
+							scanf("%d", &nuevoAnho);
+							printf("introducir pais: \n");
+							scanf("%s", nuevoPais);
+							printf("introducir idioma: \n");
+							scanf("%s", nuevoIdioma);
+
+							// settear datos en el nuevo libro
+							strcpy(nuevolibro_1_arg.Libro.Isbn, nuevoIsbn);
+							strcpy(nuevolibro_1_arg.Libro.Autor, nuevoAutor);
+							strcpy(nuevolibro_1_arg.Libro.Titulo, nuevoTitulo);
+							nuevolibro_1_arg.Libro.Anio = nuevoAnho;
+							strcpy(nuevolibro_1_arg.Libro.Pais, nuevoPais);
+							strcpy(nuevolibro_1_arg.Libro.Idioma, nuevoIdioma);
+							nuevolibro_1_arg.Libro.NoLibros = 0;
+							nuevolibro_1_arg.Libro.NoListaEspera = 0;
+							nuevolibro_1_arg.Libro.NoPrestados = 0;
+							// probando imprimir por terminal
+							printf("datos del nuevo libro-> Isbn:%s Autor:%s Titulo:%s Anho:%d Pais:%s Idioma:%s\n",
+								   nuevolibro_1_arg.Libro.Isbn, nuevolibro_1_arg.Libro.Autor, nuevolibro_1_arg.Libro.Titulo,
+								   nuevolibro_1_arg.Libro.Anio, nuevolibro_1_arg.Libro.Pais, nuevolibro_1_arg.Libro.Idioma);
+
+							// cargamos los datos al servidor
+							result_3 = nuevolibro_1(&nuevolibro_1_arg, clnt);
+							if (result_3 == (int *)NULL)
+							{
+								clnt_perror(clnt, "call failed\n");
+							}
+							else if (*result_3 == -1)
+							{
+								printf("id del administrador no coincide\n");
+							}
+							else if (*result_3 == 0)
+							{
+								printf("se cargo el nuevo libro exitosamente\n");
+							}
+							Pause;
+							break;
+						}
+						case 4: // comprar libros
+						{
+							Cadena nIsbn = "";
+							int copias = 0;
+
+							printf("Indique el ISBN del libro a comprar...\n");
+							scanf("%s", nIsbn);
+							printf("Cuantas copias desea anhadir...\n");
+							scanf("%d", &copias);
+							comprar_1_arg.NoLibros = copias;
+							comprar_1_arg.Ida = idAdm;
+							strcpy(comprar_1_arg.Isbn, nIsbn);
+
+							// realizamos la compra del libro
+							result_6 = comprar_1(&comprar_1_arg, clnt);
+
+							if (result_6 == (int *)NULL)
+							{
+								clnt_perror(clnt, "call failed");
+							}
+							else
+							{
+								switch (*result_6)
+								{
+								case -1:
+									printf("id del administrador no coincide\n");
+									break;
+
+								case 0:
+									printf("no se encontro la isbn del libro\n");
+									break;
+								case 1:
+									printf("se anhadio una nueva copia del libro seleccionado...\n");
+									break;
+								}
+							}
+							Pause;
+							break;
+						}
+						case 5: // retirar libro
+						{
+							Cadena nIsbn = "";
+							int copias = 0;
+
+							printf("Indique el ISBN del libro a retirar...\n");
+							scanf("%s", nIsbn);
+							printf("Cuantas copias desea retirar...\n");
+							scanf("%d", &copias);
+
+							strcpy(retirar_1_arg.Isbn, nIsbn);
+							retirar_1_arg.Ida = idAdm;
+							retirar_1_arg.NoLibros = copias;
+							// realizamos la compra del libro
+							result_7 = retirar_1(&retirar_1_arg, clnt);
+
+							if (result_7 == (int *)NULL)
+							{
+								clnt_perror(clnt, "call failed");
+							}
+							else
+							{
+								switch (*result_7)
+								{
+								case -1:
+									printf("id del administrador no coincide\n");
+									break;
+
+								case 0:
+									printf("no se encontro la isbn del libro\n");
+									break;
+								case 1:
+									printf("se retiraron las copias del libro seleccionado...\n");
+									break;
+								}
+							}
+							Pause;
+							break;
+						}
+						case 6: // ordenar libros
+						{
+							printf("Indique el criterio para ordenar los libros de la biblioteca...\n");
+							printf("0. Por ISBN\n1.Por titulo\n2.Por autor\n3.Por anho\n4.Por pais\n5.Por Idioma\n6.Por Numero de libros disponibles\n7.Por numero de libros prestados\n8.Por numero de libros en espera\n");
+							int criterio = 0;
+
+							printf("Indique el criterio de busqueda:\n");
+							scanf("%d", &criterio);
+
+							ordenar_1_arg.Campo = criterio;
+							ordenar_1_arg.Ida = idAdm;
+							result_8 = ordenar_1(&ordenar_1_arg, clnt);
+							if (result_8 == (bool_t *)NULL)
+							{
+								clnt_perror(clnt, "call failed");
+							}
+							else
+							{
+								switch (*result_8)
+								{
+								case FALSE:
+									printf("id del administrador no coincide\n");
+									break;
+
+								case TRUE:
+									printf("*** La biblioteca ha sido ordenada correctamente.**\n");
+									break;
+								}
+							}
+							Pause;
+							break;
+						}
+						case 7: // buscar libros
+						{
+							metodoBuscar(buscar_1_arg, descargar_1_arg, nlibros_1_arg, idAdm, clnt, result_10, result_9, result_11);
+							Pause;
+							break;
+						}
+						case 8: // listar libros
+						{
+							printf("Mostrando listado de libros...\n");
 							nlibros_1_arg = idAdm;
 							result_9 = nlibros_1(&nlibros_1_arg, clnt);
 							if (result_9 == (int *)NULL)
 							{
-								clnt_perror(clnt, "call failed1");
+								clnt_perror(clnt, "call failed");
 							}
 							else if (*result_9 == -1)
 							{
@@ -533,82 +585,50 @@ void gestorbiblioteca_1(char *host)
 							else
 							{
 								descargar_1_arg.Ida = idAdm;
-								if (strcmp(holamundo, "T") == 0)
-								{
-									buscarTitulo(descargar_1_arg, *result_9, clnt, TRUE, buscari);
-								}
-								else if (strcmp(holamundo, "A") == 0)
-								{
-									buscarAutor(descargar_1_arg, *result_9, clnt, TRUE, buscari);
-								}
-								else if (strcmp(holamundo, "P") == 0)
-								{
-									buscarPais(descargar_1_arg, *result_9, clnt, TRUE, buscari);
-								}
-								else if (strcmp(holamundo, "D") == 0)
-								{
-									buscarIdioma(descargar_1_arg, *result_9, clnt, TRUE, buscari);
-								}
-								else if (strcmp(holamundo, "*") == 0)
-								{
-									buscarTodosLosCampos(descargar_1_arg, *result_9, clnt, TRUE, buscari);
-								}
-							}
-						}
-						Pause;
-						break;
-					}
-					case 8: // listar libros
-					{
-						printf("Mostrando listado de libros...\n");
-						nlibros_1_arg = idAdm;
-						result_9 = nlibros_1(&nlibros_1_arg, clnt);
-						if (result_9 == (int *)NULL)
-						{
-							clnt_perror(clnt, "call failed");
-						}
-						else if (*result_9 == -1)
-						{
-							printf("no se han encontrado libros para listar\n");
-						}
-						else
-						{
-							descargar_1_arg.Ida = idAdm;
-							descargar_1_arg.Pos = 0;
-							result_11 = descargar_1(&descargar_1_arg, clnt);
-							MostrarLibro(result_11, 0, TRUE);
-							do
-							{
+								descargar_1_arg.Pos = 0;
 								result_11 = descargar_1(&descargar_1_arg, clnt);
-								MostrarLibro(result_11, descargar_1_arg.Pos, FALSE);
-								descargar_1_arg.Pos = descargar_1_arg.Pos + 1;
-							} while (descargar_1_arg.Pos < *result_9);
+								MostrarLibro(result_11, 0, TRUE);
+								do
+								{
+									result_11 = descargar_1(&descargar_1_arg, clnt);
+									MostrarLibro(result_11, descargar_1_arg.Pos, FALSE);
+									descargar_1_arg.Pos = descargar_1_arg.Pos + 1;
+								} while (descargar_1_arg.Pos < *result_9);
+							}
+							Pause;
+							break;
 						}
-						Pause;
-						break;
-					}
-					}
-				} while (cual != 0);
+						}
+					} while (cual2 != 0);
+				}
+				break;
 			}
 			break;
 		}
-		break;
-	}
-	case 2:
-	{
-		Cadena buscari = "";
-		Cadena holamundo = "";
-		printf("introduzca el texto a buscar:\n");
-		scanf("%s", buscari);
-		strcpy(buscar_1_arg.Datos, buscari);
-		buscar_1_arg.Ida = 3;
-
-		printf("Indique un criterio para buscar libros en la biblioteca....\nI. Por ISBN\nT. Por Titulo\nA. Por Autor\nP. Por Pais\nD. Por Idioma\n*. Todos los campos\n");
-		scanf("%s", holamundo);
-
-		// si la busqueda es por ISBN
-		if (strcmp(holamundo, "I") == 0)
+		case 2:
 		{
+			metodoBuscar(buscar_1_arg, descargar_1_arg, nlibros_1_arg, 3, clnt, result_10, result_9, result_11);
+			Pause;
+			break;
+		}
+		case 3:
+		{
+			/*Cadena cprestar = "";
+			Cadena resp = "";
+			int nprestamo = 0;
+			printf("*******prestar libro********\n");
+			printf("indique el ISBN a buscar:\n");
+			scanf("%s\n", cprestar);
+			strcpy(buscar_1_arg.Datos, cprestar);
+			buscar_1_arg.Ida = 3;*/
+			Cadena buscari = "";
+			Cadena holamundo = "";
+			Cadena resp = "";
+			int nprestamo = 0;
+			printf("introduzca el texto a buscar:\n");
+			scanf("%s", buscari);
+			strcpy(buscar_1_arg.Datos, buscari);
+			buscar_1_arg.Ida = 3;
 			result_10 = buscar_1(&buscar_1_arg, clnt);
 			if (result_10 == (int *)NULL)
 			{
@@ -616,11 +636,11 @@ void gestorbiblioteca_1(char *host)
 			}
 			else if (*result_10 == -1)
 			{
-				printf("buscar> id del administrador no coincide\n");
+				printf("id del administrador no coincide\n");
 			}
 			else if (*result_10 == -2)
 			{
-				printf("buscar> *** no se encontraron libros con la descripcion proporcionada.**\n");
+				printf("*** no se encontraron libros con la descripcion proporcionada.**\n");
 			}
 			else
 			{
@@ -629,50 +649,103 @@ void gestorbiblioteca_1(char *host)
 				descargar_1_arg.Pos = *result_10;
 				result_11 = descargar_1(&descargar_1_arg, clnt);
 				MostrarLibro(result_11, descargar_1_arg.Pos, TRUE);
+				printf("¿ Quieres sacar algún libro de la biblioteca (s/n) ?\nEscriba su respuesta en minusculas como se indica:\n");
+				scanf("%s", resp);
+				if (strcmp(resp, "s") == 0)
+				{
+					printf("Introduce la Posición del libro a solicitar su préstamo:\n");
+					scanf("%d", &nprestamo);
+					prestar_1_arg.Ida = 3;
+					prestar_1_arg.Pos = nprestamo-1;
+					result_12 = prestar_1(&prestar_1_arg, clnt);
+					if (result_12 == (int *)NULL)
+					{
+						clnt_perror(clnt, "call failed");
+					} else
+					{
+						switch (*result_12)
+						{
+						case -2:
+							printf("id del administrador no coincide\n");
+							break;
+						case -1:
+							printf("La posición indicada no está dentro de los límites del vector dinámico.\n");
+							break;
+						case 0:
+							printf("Se ha puesto el usuario en la lista de espera.\n");
+							break;
+						case 1:
+							printf("***El préstamo se ha concedido, recoge el libro en el mostrador.**\n");
+							break;
+						}
+
+					}
+				}
 			}
-		}
-		else // si la busqueda es por otro campo (titulo, autor, pais, idioma o todos)
-		{
-			printf("*buscando entre las otras opciones**\n");
-			nlibros_1_arg = 3;
-			result_9 = nlibros_1(&nlibros_1_arg, clnt);
-			if (result_9 == (int *)NULL)
+			/*
+			result_10 = buscar_1(&buscar_1_arg, clnt);
+			if (result_10 == (int *)NULL)
 			{
-				clnt_perror(clnt, "call failed1");
+				clnt_perror(clnt, "call failed");
 			}
-			else if (*result_9 == -1)
+			else if (*result_10 == -1)
 			{
-				printf("no se han encontrado libros para listar\n");
+				printf("id del administrador no coincide\n");
+			}
+			else if (*result_10 == -2)
+			{
+				printf("*** no se encontraron libros con la descripcion proporcionada.**\n");
 			}
 			else
 			{
+				printf("*********ESTOS SON LOS RESULTADOS DE LA BUSQUEDA***********\n");
 				descargar_1_arg.Ida = 3;
-				if (strcmp(holamundo, "T") == 0)
+				descargar_1_arg.Pos = *result_10;
+				result_11 = descargar_1(&descargar_1_arg, clnt);
+				MostrarLibro(result_11, descargar_1_arg.Pos, TRUE);
+				printf("¿ Quieres sacar algún libro de la biblioteca (s/n) ?\nEscriba su respuesta en minusculas como se indica:\n");
+				scanf("%s", resp);
+				if (strcmp(resp, "s") == 0)
 				{
-					buscarTitulo(descargar_1_arg, *result_9, clnt, TRUE, buscari);
+					printf("Introduce la Posición del libro a solicitar su préstamo:\n");
+					scanf("%d", &nprestamo);
+					prestar_1_arg.Ida = 3;
+					prestar_1_arg.Pos = nprestamo;
+					result_12 = prestar_1(&prestar_1_arg, clnt);
+					if (result_12 == (int *)NULL)
+					{
+						clnt_perror(clnt, "call failed");
+					} else
+					{
+						switch (*result_12)
+						{
+						case -2:
+							printf("id del administrador no coincide\n");
+							break;
+						case -1:
+							printf("La posición indicada no está dentro de los límites del vector dinámico.\n");
+							break;
+						case 0:
+							printf("Se ha puesto el usuario en la lista de espera.\n");
+							break;
+						case 1:
+							printf("***El préstamo se ha concedido, recoge el libro en el mostrador.**\n");
+							break;
+						}
+
+					}
 				}
-				else if (strcmp(holamundo, "A") == 0)
-				{
-					buscarAutor(descargar_1_arg, *result_9, clnt, TRUE, buscari);
-				}
-				else if (strcmp(holamundo, "P") == 0)
-				{
-					buscarPais(descargar_1_arg, *result_9, clnt, TRUE, buscari);
-				}
-				else if (strcmp(holamundo, "D") == 0)
-				{
-					buscarIdioma(descargar_1_arg, *result_9, clnt, TRUE, buscari);
-				}
-				else if (strcmp(holamundo, "*") == 0)
-				{
-					buscarTodosLosCampos(descargar_1_arg, *result_9, clnt, TRUE, buscari);
-				}
-			}
+			}*/
+			Pause;
+			break;
 		}
-		Pause;
-		break;
-	}
-	}
+		case 4:
+		{
+			// devolver
+		}
+		}
+
+	} while (cual != 0);
 
 #ifndef DEBUG
 	clnt_destroy(clnt);
