@@ -402,10 +402,11 @@ int *devolver_1_svc(TPosicion *argp, struct svc_req *rqstp)
 	static int result;
 	if (argp->Ida != IdAdmin && argp->Ida != 3)
 	{
-		result = -1;
+		result = -2;
 	}
 	else
 	{
+		result = -1;
 		if (Biblioteca[argp->Pos].NoListaEspera > 0)
 		{
 			result = 0;

@@ -613,14 +613,6 @@ void gestorbiblioteca_1(char *host)
 		}
 		case 3:
 		{
-			/*Cadena cprestar = "";
-			Cadena resp = "";
-			int nprestamo = 0;
-			printf("*******prestar libro********\n");
-			printf("indique el ISBN a buscar:\n");
-			scanf("%s\n", cprestar);
-			strcpy(buscar_1_arg.Datos, cprestar);
-			buscar_1_arg.Ida = 3;*/
 			Cadena buscari = "";
 			Cadena holamundo = "";
 			Cadena resp = "";
@@ -682,7 +674,19 @@ void gestorbiblioteca_1(char *host)
 					}
 				}
 			}
-			/*
+			Pause;
+			break;
+		}
+		case 4: //devolver
+		{
+			Cadena buscari = "";
+			Cadena holamundo = "";
+			Cadena resp = "";
+			int nprestamo = 0;
+			printf("introduzca el texto a buscar:\n");
+			scanf("%s", buscari);
+			strcpy(buscar_1_arg.Datos, buscari);
+			buscar_1_arg.Ida = 3;
 			result_10 = buscar_1(&buscar_1_arg, clnt);
 			if (result_10 == (int *)NULL)
 			{
@@ -703,45 +707,44 @@ void gestorbiblioteca_1(char *host)
 				descargar_1_arg.Pos = *result_10;
 				result_11 = descargar_1(&descargar_1_arg, clnt);
 				MostrarLibro(result_11, descargar_1_arg.Pos, TRUE);
-				printf("¿ Quieres sacar algún libro de la biblioteca (s/n) ?\nEscriba su respuesta en minusculas como se indica:\n");
+				printf("¿ Quieres devolver algún libro de la biblioteca (s/n) ?\nEscriba su respuesta en minusculas como se indica:\n");
 				scanf("%s", resp);
 				if (strcmp(resp, "s") == 0)
 				{
 					printf("Introduce la Posición del libro a solicitar su préstamo:\n");
 					scanf("%d", &nprestamo);
-					prestar_1_arg.Ida = 3;
-					prestar_1_arg.Pos = nprestamo;
-					result_12 = prestar_1(&prestar_1_arg, clnt);
-					if (result_12 == (int *)NULL)
+					devolver_1_arg.Ida = 3;
+					devolver_1_arg.Pos = nprestamo-1;
+					result_13 = devolver_1(&devolver_1_arg, clnt);
+					if (result_13 == (int *)NULL)
 					{
 						clnt_perror(clnt, "call failed");
 					} else
 					{
-						switch (*result_12)
+						switch (*result_13)
 						{
 						case -2:
 							printf("id del administrador no coincide\n");
 							break;
-						case -1:
-							printf("La posición indicada no está dentro de los límites del vector dinámico.\n");
-							break;
 						case 0:
-							printf("Se ha puesto el usuario en la lista de espera.\n");
+							printf("Se ha devuelto el libro reduciendo el número de usuarios en espera.\n");
+							break;
+						case -1:
+							printf("La posición indicada no está dentro de los límites del vector dinámico\n");
 							break;
 						case 1:
-							printf("***El préstamo se ha concedido, recoge el libro en el mostrador.**\n");
+							printf("****Se ha devuelto el libro y se pondrá en la estantería.****\n");
+							break;
+						case 2:
+							printf("El libro no se puede devolver, porque no hay ni usuarios en lista de espera ni libros prestados.\n");
 							break;
 						}
 
 					}
 				}
-			}*/
+			}
 			Pause;
 			break;
-		}
-		case 4:
-		{
-			// devolver
 		}
 		}
 
