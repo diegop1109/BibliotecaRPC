@@ -67,6 +67,97 @@ void MostrarLibro(TLibro *L, int Pos, bool_t Cabecera)
 	printf("%-5d%s%-*s%*d%*d%*d\n", Pos + 1, T, 18, L->Isbn, 4, L->NoLibros, 4, L->NoPrestados, 4, L->NoListaEspera);
 	printf("     %s%s%-*d\n", A, PI, 12, L->Anio);
 }
+void buscarTitulo(TPosicion descargar_1_arg, int result_9, CLIENT *clnt, bool_t header, Cadena buscari)
+{
+	TLibro *resBusqueda;
+	for (size_t i = 0; i < result_9; i++)
+	{
+		descargar_1_arg.Pos = i;
+		resBusqueda = descargar_1(&descargar_1_arg, clnt);
+		if (strstr(resBusqueda->Titulo, buscari))
+		{
+			if (header)
+			{
+				MostrarLibro(resBusqueda, i, header);
+				header = FALSE;
+			}
+			MostrarLibro(resBusqueda, i, FALSE);
+		}
+	}
+}
+void buscarAutor(TPosicion descargar_1_arg, int result_9, CLIENT *clnt, bool_t header, Cadena buscari)
+{
+	TLibro *resBusqueda;
+	for (size_t i = 0; i < result_9; i++)
+	{
+		descargar_1_arg.Pos = i;
+		resBusqueda = descargar_1(&descargar_1_arg, clnt);
+		if (strstr(resBusqueda->Autor, buscari))
+		{
+			if (header)
+			{
+				MostrarLibro(resBusqueda, i, header);
+				header = FALSE;
+			}
+			MostrarLibro(resBusqueda, i, FALSE);
+		}
+	}
+}
+void buscarPais(TPosicion descargar_1_arg, int result_9, CLIENT *clnt, bool_t header, Cadena buscari)
+{
+	TLibro *resBusqueda;
+	for (size_t i = 0; i < result_9; i++)
+	{
+		descargar_1_arg.Pos = i;
+		resBusqueda = descargar_1(&descargar_1_arg, clnt);
+		if (strstr(resBusqueda->Pais, buscari))
+		{
+			if (header)
+			{
+				MostrarLibro(resBusqueda, i, header);
+				header = FALSE;
+			}
+			MostrarLibro(resBusqueda, i, FALSE);
+		}
+	}
+}
+void buscarIdioma(TPosicion descargar_1_arg, int result_9, CLIENT *clnt, bool_t header, Cadena buscari)
+{
+	TLibro *resBusqueda;
+	for (size_t i = 0; i < result_9; i++)
+	{
+		descargar_1_arg.Pos = i;
+		resBusqueda = descargar_1(&descargar_1_arg, clnt);
+		if (strstr(resBusqueda->Idioma, buscari))
+		{
+			if (header)
+			{
+				MostrarLibro(resBusqueda, i, header);
+				header = FALSE;
+			}
+			MostrarLibro(resBusqueda, i, FALSE);
+		}
+	}
+}
+void buscarTodosLosCampos(TPosicion descargar_1_arg, int result_9, CLIENT *clnt, bool_t header, Cadena buscari)
+{
+	TLibro *resBusqueda;
+	for (size_t i = 0; i < result_9; i++)
+	{
+		descargar_1_arg.Pos = i;
+		resBusqueda = descargar_1(&descargar_1_arg, clnt);
+		if (strstr(resBusqueda->Titulo, buscari) || strstr(resBusqueda->Autor, buscari) ||
+			strstr(resBusqueda->Pais, buscari) || strstr(resBusqueda->Idioma, buscari))
+		{
+			if (header)
+			{
+				MostrarLibro(resBusqueda, i, header);
+				header = FALSE;
+			}
+			MostrarLibro(resBusqueda, i, FALSE);
+		}
+	}
+}
 
 void gestorbiblioteca_1(char *host)
 {
@@ -135,12 +226,12 @@ void gestorbiblioteca_1(char *host)
 			{
 			case -1:
 			{
-				printf("ERROR-1: ADMINISTRADOR DENTRO DEL SISTEMA\n");
+				printf("*********ACCESO NO AUTORIZADO, YA HAY UN ADMINISTRADOR EN EL SISTEMA**********\n");
 				break;
 			}
 			case -2:
 			{
-				printf("ERROR-2: CONTRASENNA INCORRECTA\n");
+				printf("***************CONTRASENHA INCORRECTA******************\n");
 				break;
 			}
 
@@ -396,8 +487,6 @@ void gestorbiblioteca_1(char *host)
 					{
 						Cadena buscari = "";
 						Cadena holamundo = "";
-						TLibro *resBusqueda;
-						bool_t header = TRUE;
 						printf("introduzca el texto a buscar:\n");
 						scanf("%s", buscari);
 						strcpy(buscar_1_arg.Datos, buscari);
@@ -447,105 +536,25 @@ void gestorbiblioteca_1(char *host)
 							else
 							{
 								descargar_1_arg.Ida = idAdm;
-
 								if (strcmp(holamundo, "T") == 0)
 								{
-									for (size_t i = 0; i < *result_9; i++)
-									{
-										descargar_1_arg.Pos = i;
-										resBusqueda = descargar_1(&descargar_1_arg, clnt);
-
-										if (strstr(resBusqueda->Titulo, buscari))
-										{
-											if (header)
-											{
-												MostrarLibro(resBusqueda, i, header);
-												header = FALSE;
-											}
-											MostrarLibro(resBusqueda, i, FALSE);
-										}
-									}
+									buscarTitulo(descargar_1_arg, *result_9, clnt, TRUE, buscari);
 								}
 								else if (strcmp(holamundo, "A") == 0)
 								{
-									for (size_t i = 0; i < *result_9; i++)
-									{
-										descargar_1_arg.Pos = i;
-										resBusqueda = descargar_1(&descargar_1_arg, clnt);
-
-										if (strstr(resBusqueda->Autor, buscari))
-										{
-											if (header)
-											{
-												MostrarLibro(resBusqueda, i, header);
-												header = FALSE;
-											}
-											MostrarLibro(resBusqueda, i, FALSE);
-										}
-									}
+									buscarAutor(descargar_1_arg, *result_9, clnt, TRUE, buscari);
 								}
 								else if (strcmp(holamundo, "P") == 0)
 								{
-									for (size_t i = 0; i < *result_9; i++)
-									{
-										descargar_1_arg.Pos = i;
-										resBusqueda = descargar_1(&descargar_1_arg, clnt);
-
-										if (strstr(resBusqueda->Pais, buscari))
-										{
-											if (header)
-											{
-												MostrarLibro(resBusqueda, i, header);
-												header = FALSE;
-											}
-											MostrarLibro(resBusqueda, i, FALSE);
-										}
-									}
+									buscarPais(descargar_1_arg, *result_9, clnt, TRUE, buscari);
 								}
 								else if (strcmp(holamundo, "D") == 0)
 								{
-									for (size_t i = 0; i < *result_9; i++)
-									{
-										descargar_1_arg.Pos = i;
-										resBusqueda = descargar_1(&descargar_1_arg, clnt);
-
-										if (strstr(resBusqueda->Idioma, buscari))
-										{
-											if (header)
-											{
-												MostrarLibro(resBusqueda, i, header);
-												header = FALSE;
-											}
-											MostrarLibro(resBusqueda, i, FALSE);
-										}
-									}
+									buscarIdioma(descargar_1_arg, *result_9, clnt, TRUE, buscari);
 								}
 								else if (strcmp(holamundo, "*") == 0)
 								{
-									for (size_t i = 0; i < *result_9; i++)
-									{
-										descargar_1_arg.Pos = i;
-										resBusqueda = descargar_1(&descargar_1_arg, clnt);
-
-										if (strstr(resBusqueda->Titulo, buscari))
-										{
-											if (strstr(resBusqueda->Idioma, buscari))
-											{
-												if (strstr(resBusqueda->Pais, buscari))
-												{
-													if (strstr(resBusqueda->Autor, buscari))
-													{
-														if (header)
-														{
-															MostrarLibro(resBusqueda, i, header);
-															header = FALSE;
-														}
-														MostrarLibro(resBusqueda, i, FALSE);
-													}
-												}
-											}
-										}
-									}
+									buscarTodosLosCampos(descargar_1_arg, *result_9, clnt, TRUE, buscari);
 								}
 							}
 						}
@@ -589,7 +598,81 @@ void gestorbiblioteca_1(char *host)
 	}
 	case 2:
 	{
-		// opcion 2 del usuario normal
+		Cadena buscari = "";
+		Cadena holamundo = "";
+		printf("introduzca el texto a buscar:\n");
+		scanf("%s", buscari);
+		strcpy(buscar_1_arg.Datos, buscari);
+		buscar_1_arg.Ida = idAdm;
+
+		printf("Indique un criterio para buscar libros en la biblioteca....\nI. Por ISBN\nT. Por Titulo\nA. Por Autor\nP. Por Pais\nD. Por Idioma\n*. Todos los campos\n");
+		scanf("%s", holamundo);
+
+		// si la busqueda es por ISBN
+		if (strcmp(holamundo, "I") == 0)
+		{
+			result_10 = buscar_1(&buscar_1_arg, clnt);
+			if (result_10 == (int *)NULL)
+			{
+				clnt_perror(clnt, "call failed");
+			}
+			else if (*result_10 == -1)
+			{
+				printf("id del administrador no coincide\n");
+			}
+			else if (*result_10 == -2)
+			{
+				printf("*** no se encontraron libros con la descripcion proporcionada.**\n");
+			}
+			else
+			{
+				printf("*********ESTOS SON LOS RESULTADOS DE LA BUSQUEDA***********\n");
+				descargar_1_arg.Ida = idAdm;
+				descargar_1_arg.Pos = *result_10;
+				result_11 = descargar_1(&descargar_1_arg, clnt);
+				MostrarLibro(result_11, descargar_1_arg.Pos, TRUE);
+			}
+		}
+		else // si la busqueda es por otro campo (titulo, autor, pais, idioma o todos)
+		{
+			printf("*buscando entre las otras opciones**\n");
+			nlibros_1_arg = idAdm;
+			result_9 = nlibros_1(&nlibros_1_arg, clnt);
+			if (result_9 == (int *)NULL)
+			{
+				clnt_perror(clnt, "call failed1");
+			}
+			else if (*result_9 == -1)
+			{
+				printf("no se han encontrado libros para listar\n");
+			}
+			else
+			{
+				descargar_1_arg.Ida = idAdm;
+				if (strcmp(holamundo, "T") == 0)
+				{
+					buscarTitulo(descargar_1_arg, *result_9, clnt, TRUE, buscari);
+				}
+				else if (strcmp(holamundo, "A") == 0)
+				{
+					buscarAutor(descargar_1_arg, *result_9, clnt, TRUE, buscari);
+				}
+				else if (strcmp(holamundo, "P") == 0)
+				{
+					buscarPais(descargar_1_arg, *result_9, clnt, TRUE, buscari);
+				}
+				else if (strcmp(holamundo, "D") == 0)
+				{
+					buscarIdioma(descargar_1_arg, *result_9, clnt, TRUE, buscari);
+				}
+				else if (strcmp(holamundo, "*") == 0)
+				{
+					buscarTodosLosCampos(descargar_1_arg, *result_9, clnt, TRUE, buscari);
+				}
+			}
+		}
+		Pause;
+		break;
 	}
 	}
 	/*result_1 = conexion_1(&conexion_1_arg, clnt);
