@@ -317,7 +317,7 @@ int *nlibros_1_svc(int *argp, struct svc_req *rqstp)
 {
 	static int result;
 
-	if (*argp != IdAdmin)
+	if (*argp != IdAdmin && *argp != 3)
 	{
 		result = -1;
 	} else 
@@ -336,8 +336,7 @@ int *nlibros_1_svc(int *argp, struct svc_req *rqstp)
 int *buscar_1_svc(TConsulta *argp, struct svc_req *rqstp)
 {
 	static int result;
-
-	if (argp->Ida != IdAdmin)
+	if (argp->Ida != IdAdmin && argp->Ida != 3)
 	{
 		result = -1;
 	} else 
@@ -364,7 +363,7 @@ descargar_1_svc(TPosicion *argp, struct svc_req *rqstp)
 {
 	static TLibro result;
 
-	if (argp->Ida != IdAdmin)
+	if (argp->Ida != IdAdmin && argp->Ida != 3)
 	{
 		return NULL;
 	} else 

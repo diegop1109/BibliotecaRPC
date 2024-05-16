@@ -222,22 +222,19 @@ void gestorbiblioteca_1(char *host)
 		}
 		else
 		{
-			switch (*result_1)
-			{
-			case -1:
+			if (*result_1 == -1)
 			{
 				printf("*********ACCESO NO AUTORIZADO, YA HAY UN ADMINISTRADOR EN EL SISTEMA**********\n");
-				break;
 			}
-			case -2:
+			else if (*result_1 == -2)
 			{
 				printf("***************CONTRASENHA INCORRECTA******************\n");
-				break;
 			}
+			else
+			{
 
-			default:
 				idAdm = *result_1; // guardamos el id del admin
-				printf("		INICIO DE SESION ADMIN...\n");
+				printf("*****************INICIO DE SESION ADMIN***************\n");
 				Pause;
 				do
 				{
@@ -264,7 +261,7 @@ void gestorbiblioteca_1(char *host)
 								break;
 							}
 						}
-
+						Pause;
 						break;
 					case 1: // cargar datos
 					{
@@ -591,8 +588,9 @@ void gestorbiblioteca_1(char *host)
 						break;
 					}
 					}
-				} while (TRUE);
+				} while (cual != 0);
 			}
+			break;
 		}
 		break;
 	}
@@ -603,7 +601,7 @@ void gestorbiblioteca_1(char *host)
 		printf("introduzca el texto a buscar:\n");
 		scanf("%s", buscari);
 		strcpy(buscar_1_arg.Datos, buscari);
-		buscar_1_arg.Ida = idAdm;
+		buscar_1_arg.Ida = 3;
 
 		printf("Indique un criterio para buscar libros en la biblioteca....\nI. Por ISBN\nT. Por Titulo\nA. Por Autor\nP. Por Pais\nD. Por Idioma\n*. Todos los campos\n");
 		scanf("%s", holamundo);
@@ -618,16 +616,16 @@ void gestorbiblioteca_1(char *host)
 			}
 			else if (*result_10 == -1)
 			{
-				printf("id del administrador no coincide\n");
+				printf("buscar> id del administrador no coincide\n");
 			}
 			else if (*result_10 == -2)
 			{
-				printf("*** no se encontraron libros con la descripcion proporcionada.**\n");
+				printf("buscar> *** no se encontraron libros con la descripcion proporcionada.**\n");
 			}
 			else
 			{
 				printf("*********ESTOS SON LOS RESULTADOS DE LA BUSQUEDA***********\n");
-				descargar_1_arg.Ida = idAdm;
+				descargar_1_arg.Ida = 3;
 				descargar_1_arg.Pos = *result_10;
 				result_11 = descargar_1(&descargar_1_arg, clnt);
 				MostrarLibro(result_11, descargar_1_arg.Pos, TRUE);
@@ -636,7 +634,7 @@ void gestorbiblioteca_1(char *host)
 		else // si la busqueda es por otro campo (titulo, autor, pais, idioma o todos)
 		{
 			printf("*buscando entre las otras opciones**\n");
-			nlibros_1_arg = idAdm;
+			nlibros_1_arg = 3;
 			result_9 = nlibros_1(&nlibros_1_arg, clnt);
 			if (result_9 == (int *)NULL)
 			{
@@ -648,7 +646,7 @@ void gestorbiblioteca_1(char *host)
 			}
 			else
 			{
-				descargar_1_arg.Ida = idAdm;
+				descargar_1_arg.Ida = 3;
 				if (strcmp(holamundo, "T") == 0)
 				{
 					buscarTitulo(descargar_1_arg, *result_9, clnt, TRUE, buscari);
@@ -675,74 +673,10 @@ void gestorbiblioteca_1(char *host)
 		break;
 	}
 	}
-	/*result_1 = conexion_1(&conexion_1_arg, clnt);
-	if (result_1 == (int *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_2 = desconexion_1(&desconexion_1_arg, clnt);
-	if (result_2 == (bool_t *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_3 = cargardatos_1(&cargardatos_1_arg, clnt);
-	if (result_3 == (int *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_4 = guardardatos_1(&guardardatos_1_arg, clnt);
-	if (result_4 == (bool_t *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_5 = nuevolibro_1(&nuevolibro_1_arg, clnt);
-	if (result_5 == (int *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_6 = comprar_1(&comprar_1_arg, clnt);
-	if (result_6 == (int *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_7 = retirar_1(&retirar_1_arg, clnt);
-	if (result_7 == (int *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_8 = ordenar_1(&ordenar_1_arg, clnt);
-	if (result_8 == (bool_t *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_9 = nlibros_1(&nlibros_1_arg, clnt);
-	if (result_9 == (int *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_10 = buscar_1(&buscar_1_arg, clnt);
-	if (result_10 == (int *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_11 = descargar_1(&descargar_1_arg, clnt);
-	if (result_11 == (TLibro *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_12 = prestar_1(&prestar_1_arg, clnt);
-	if (result_12 == (int *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}
-	result_13 = devolver_1(&devolver_1_arg, clnt);
-	if (result_13 == (int *)NULL)
-	{
-		clnt_perror(clnt, "call failed");
-	}*/
+
 #ifndef DEBUG
 	clnt_destroy(clnt);
-#endif /* DEBUG */
+#endif
 }
 
 int menuPrincipal()
