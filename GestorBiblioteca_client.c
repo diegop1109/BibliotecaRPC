@@ -180,11 +180,11 @@ void metodoBuscar(TConsulta buscar_1_arg, TPosicion descargar_1_arg, int nlibros
 		{
 			clnt_perror(clnt, "call failed");
 		}
-		else if (*result_10 == -1)
+		else if (*result_10 == -2)
 		{
 			printf("id del administrador no coincide\n");
 		}
-		else if (*result_10 == -2)
+		else if (*result_10 == -1)
 		{
 			printf("*** no se encontraron libros con la descripcion proporcionada.**\n");
 		}
@@ -448,8 +448,13 @@ void gestorbiblioteca_1(char *host)
 							}
 							else if (*result_3 == 0)
 							{
+								printf("ya existe un libro con el mismo ISBN\n");
+							}
+							else if (*result_3 == 1)
+							{
 								printf("se cargo el nuevo libro exitosamente\n");
 							}
+							
 							Pause;
 							break;
 						}
@@ -521,7 +526,7 @@ void gestorbiblioteca_1(char *host)
 									break;
 
 								case 0:
-									printf("no se encontro la isbn del libro\n");
+									printf("no se encontraron copias disponibles del libro\n");
 									break;
 								case 1:
 									printf("se retiraron las copias del libro seleccionado...\n");
